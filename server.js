@@ -265,25 +265,24 @@ function connectTikTok(username) {
       });
 
     // Helper: extract user fields from v2.x nested structure
-    // Tries every known path for profile picture across v2.x variations
     let _debugLoggedOnce = false;
     function extractUser(data) {
       const u = data.user || data;
 
-      // Debug: log raw user object ONCE to help diagnose field names
       if (!_debugLoggedOnce && data.user) {
         _debugLoggedOnce = true;
-        console.log('[DEBUG] Raw data.user sample:', JSON.stringify(data.user, null, 2).substring(0, 800));
       }
 
-      // Try every known profile picture path in v2.x
+      // v2.x uses profilePicture.url[] (NOT urlList)
       const pic =
-        (u.profilePicture  && u.profilePicture.urlList  && u.profilePicture.urlList[0])  ||
-        (u.avatarThumb     && u.avatarThumb.urlList     && u.avatarThumb.urlList[0])     ||
-        (u.avatarMedium    && u.avatarMedium.urlList    && u.avatarMedium.urlList[0])    ||
-        (u.avatarLarger    && u.avatarLarger.urlList    && u.avatarLarger.urlList[0])    ||
-        (u.avatar          && u.avatar.urlList          && u.avatar.urlList[0])          ||
-        (u.profilePicture  && typeof u.profilePicture === 'string' && u.profilePicture)  ||
+        (u.profilePicture  && u.profilePicture.url     && u.profilePicture.url[0])     ||
+        (u.profilePicture  && u.profilePicture.urlList && u.profilePicture.urlList[0]) ||
+        (u.avatarThumb     && u.avatarThumb.url        && u.avatarThumb.url[0])        ||
+        (u.avatarThumb     && u.avatarThumb.urlList    && u.avatarThumb.urlList[0])    ||
+        (u.avatarMedium    && u.avatarMedium.url       && u.avatarMedium.url[0])       ||
+        (u.avatarLarger    && u.avatarLarger.url       && u.avatarLarger.url[0])       ||
+        (u.avatar          && u.avatar.url             && u.avatar.url[0])             ||
+        (typeof u.profilePicture === 'string' && u.profilePicture)                     ||
         u.profilePictureUrl || data.profilePictureUrl || null;
 
       return {
@@ -292,6 +291,7 @@ function connectTikTok(username) {
         profilePictureUrl: pic
       };
     }
+
 
     // Handle TikTok events
     tiktokConnection.on('chat', data => {
