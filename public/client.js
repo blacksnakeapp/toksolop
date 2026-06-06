@@ -606,6 +606,7 @@ document.getElementById('styles-form').addEventListener('submit', (e) => {
 // Save Goals
 document.getElementById('btn-save-goals').addEventListener('click', () => {
   const goals = {
+    goalFontColor: document.getElementById('input-goal-font-color').value,
     goals: {
       text: document.getElementById('input-goal-text').value,
       target: parseInt(document.getElementById('input-goal-target').value, 10) || 1000,
@@ -637,6 +638,7 @@ document.getElementById('btn-control-timer').addEventListener('click', () => {
 // Save Subathon Rules
 document.getElementById('btn-save-subathon').addEventListener('click', () => {
   const rules = {
+    subathonFontColor: document.getElementById('input-subathon-font-color').value,
     rules: {
       follow: parseInt(document.getElementById('rule-follow').value, 10) || 0,
       share: parseInt(document.getElementById('rule-share').value, 10) || 0,
