@@ -74,8 +74,16 @@ const defaultSettings = {
   chatMessageColor: "#ffffff",
 
   // Alert Overlay Typography
-  alertTitleColor: "#ffffff",
-  alertDescColor: "#cccccc",
+  followTitleColor: "#ffffff",
+  followDescColor: "#cccccc",
+  shareTitleColor: "#ffffff",
+  shareDescColor: "#cccccc",
+  giftTitleColor: "#ffffff",
+  giftDescColor: "#cccccc",
+  subscribeTitleColor: "#ffffff",
+  subscribeDescColor: "#cccccc",
+  joinTitleColor: "#ffffff",
+  joinDescColor: "#cccccc",
 
   // Goal Overlay Typography
   goalFontColor: "#ffffff",

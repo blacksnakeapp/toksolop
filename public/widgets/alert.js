@@ -191,7 +191,6 @@ function initWebSocket() {
       case 'settings':
       case 'settingsUpdated':
         settings = { ...settings, ...payload.data };
-        applyCustomStyles();
         break;
         
       case 'follow':
@@ -404,6 +403,29 @@ function displayAlert(type, data) {
   const descEl = document.createElement('div');
   descEl.className = 'alert-description animate-desc';
   descEl.textContent = description;
+
+  // Apply individual alert type colors dynamically
+  let titleColor = '#ffffff';
+  let descColor = '#cccccc';
+  if (type === 'follow') {
+    titleColor = settings.followTitleColor || '#ffffff';
+    descColor = settings.followDescColor || '#cccccc';
+  } else if (type === 'share') {
+    titleColor = settings.shareTitleColor || '#ffffff';
+    descColor = settings.shareDescColor || '#cccccc';
+  } else if (type === 'gift') {
+    titleColor = settings.giftTitleColor || '#ffffff';
+    descColor = settings.giftDescColor || '#cccccc';
+  } else if (type === 'subscribe') {
+    titleColor = settings.subscribeTitleColor || '#ffffff';
+    descColor = settings.subscribeDescColor || '#cccccc';
+  } else if (type === 'join') {
+    titleColor = settings.joinTitleColor || '#ffffff';
+    descColor = settings.joinDescColor || '#cccccc';
+  }
+  
+  titleEl.style.color = titleColor;
+  descEl.style.color = descColor;
   
   details.appendChild(titleEl);
   details.appendChild(descEl);
@@ -488,25 +510,6 @@ function playAudioSource(src) {
   }
 }
 
-function applyCustomStyles() {
-  let styleEl = document.getElementById('custom-alert-colors');
-  if (!styleEl) {
-    styleEl = document.createElement('style');
-    styleEl.id = 'custom-alert-colors';
-    document.head.appendChild(styleEl);
-  }
-  const titleColor = settings.alertTitleColor || '#ffffff';
-  const descColor = settings.alertDescColor || '#cccccc';
-  
-  styleEl.textContent = `
-    .alert-title {
-      color: ${titleColor} !important;
-    }
-    .alert-description {
-      color: ${descColor} !important;
-    }
-  `;
-}
 
 // Start
 initWebSocket();

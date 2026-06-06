@@ -353,9 +353,18 @@ function updateFormValues() {
   document.getElementById('input-chat-user-color').value = settings.chatUsernameColor || "#00f0ff";
   document.getElementById('input-chat-msg-color').value = settings.chatMessageColor || "#ffffff";
 
-  // Other Overlays Color Customization
-  document.getElementById('input-alert-title-color').value = settings.alertTitleColor || "#ffffff";
-  document.getElementById('input-alert-desc-color').value = settings.alertDescColor || "#cccccc";
+  // Individual Alerts Color Customization
+  document.getElementById('input-follow-title-color').value = settings.followTitleColor || "#ffffff";
+  document.getElementById('input-follow-desc-color').value = settings.followDescColor || "#cccccc";
+  document.getElementById('input-share-title-color').value = settings.shareTitleColor || "#ffffff";
+  document.getElementById('input-share-desc-color').value = settings.shareDescColor || "#cccccc";
+  document.getElementById('input-gift-title-color').value = settings.giftTitleColor || "#ffffff";
+  document.getElementById('input-gift-desc-color').value = settings.giftDescColor || "#cccccc";
+  document.getElementById('input-subscribe-title-color').value = settings.subscribeTitleColor || "#ffffff";
+  document.getElementById('input-subscribe-desc-color').value = settings.subscribeDescColor || "#cccccc";
+  document.getElementById('input-join-title-color').value = settings.joinTitleColor || "#ffffff";
+  document.getElementById('input-join-desc-color').value = settings.joinDescColor || "#cccccc";
+  
   document.getElementById('input-goal-font-color').value = settings.goalFontColor || "#ffffff";
   document.getElementById('input-subathon-font-color').value = settings.subathonFontColor || "#ffffff";
   document.getElementById('input-leaderboard-font-color').value = settings.leaderboardFontColor || "#ffffff";
@@ -588,9 +597,18 @@ document.getElementById('styles-form').addEventListener('submit', (e) => {
     chatUsernameColor: document.getElementById('input-chat-user-color').value,
     chatMessageColor: document.getElementById('input-chat-msg-color').value,
 
-    // Other Overlays Custom Colors
-    alertTitleColor: document.getElementById('input-alert-title-color').value,
-    alertDescColor: document.getElementById('input-alert-desc-color').value,
+    // Individual Alerts Custom Colors
+    followTitleColor: document.getElementById('input-follow-title-color').value,
+    followDescColor: document.getElementById('input-follow-desc-color').value,
+    shareTitleColor: document.getElementById('input-share-title-color').value,
+    shareDescColor: document.getElementById('input-share-desc-color').value,
+    giftTitleColor: document.getElementById('input-gift-title-color').value,
+    giftDescColor: document.getElementById('input-gift-desc-color').value,
+    subscribeTitleColor: document.getElementById('input-subscribe-title-color').value,
+    subscribeDescColor: document.getElementById('input-subscribe-desc-color').value,
+    joinTitleColor: document.getElementById('input-join-title-color').value,
+    joinDescColor: document.getElementById('input-join-desc-color').value,
+
     goalFontColor: document.getElementById('input-goal-font-color').value,
     subathonFontColor: document.getElementById('input-subathon-font-color').value,
     leaderboardFontColor: document.getElementById('input-leaderboard-font-color').value,
