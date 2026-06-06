@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolopTik - Standalone Control Dock</title>
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="control-dock.css">
+</head>
+<body>
+  <div class="glass-bg-deco circle-1"></div>
+  <div class="glass-bg-deco circle-2"></div>
+
+  <div class="dock-wrapper">
+    <!-- Header -->
+    <header class="dock-header">
+      <div class="logo">
+        <div class="logo-dot"></div>
+        <h2>Solop<span>Tik</span></h2>
+      </div>
+      <div class="status-badge" id="status-badge">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Disconnected</span>
+      </div>
+    </header>
+
+    <!-- Stats Header Cards -->
+    <section class="stats-panel">
+      <div class="stat-card">
+        <div class="val" id="val-viewers">0</div>
+        <div class="lbl">Viewers</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="val-unique">0</div>
+        <div class="lbl">Visited</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="val-likes">0</div>
+        <div class="lbl">Likes</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="val-coins">0</div>
+        <div class="lbl">Coins</div>
+      </div>
+    </section>
+
+    <!-- Connection Control Box (Collapsible) -->
+    <section class="dock-card collapsible collapsed" id="sec-connection">
+      <div class="card-header" id="header-connection">
+        <h3>Koneksi Akun</h3>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="connection-form">
+          <input type="text" id="input-username" placeholder="Username TikTok..." autocomplete="off">
+          <button id="btn-connect" class="btn btn-primary btn-block">Connect</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Soundboard Controls -->
+    <section class="dock-card">
+      <div class="card-header">
+        <h3>Soundboard Quick keys</h3>
+      </div>
+      <div class="soundboard-keys">
+        <button class="sb-key follow" data-event="follow">🔔 Follow</button>
+        <button class="sb-key share" data-event="share">🔗 Share</button>
+        <button class="sb-key gift" data-event="gift">🎁 Gift</button>
+        <button class="sb-key subscribe" data-event="subscribe">⭐ Sub</button>
+        <button class="sb-key custom1" data-event="custom1">📯 Horn</button>
+        <button class="sb-key custom2" data-event="custom2">👏 Applause</button>
+      </div>
+    </section>
+
+    <!-- Unified Activity & Chat Feed -->
+    <section class="dock-card flex-grow-card">
+      <div class="card-header">
+        <h3>Activity Log & Chat Feed</h3>
+      </div>
+      <div class="activity-feed" id="activity-feed">
+        <div class="feed-item system">
+          <span class="icon">⚙️</span>
+          <div class="msg">Control Dock Aktif. Siap memantau live stream...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Offline Simulator Controls (Collapsible) -->
+    <section class="dock-card collapsible collapsed" id="sec-simulator">
+      <div class="card-header" id="header-simulator">
+        <h3>Offline Simulator</h3>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="simulator-buttons">
+          <button class="btn btn-sim" data-type="follow">Follow</button>
+          <button class="btn btn-sim" data-type="share">Share</button>
+          <button class="btn btn-sim" data-type="subscribe">Sub</button>
+          <button class="btn btn-sim" data-type="like">Like</button>
+          <button class="btn btn-sim" data-type="chat">Chat</button>
+          <button class="btn btn-sim" data-type="gift">Gift</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="control-dock.js"></script>
+</body>
+</html>

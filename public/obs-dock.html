@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolopTik - OBS Studio Custom Dock</title>
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="obs-dock.css">
+</head>
+<body>
+  <div class="dock-container">
+    <!-- Header Stream Stats -->
+    <header class="dock-stats-header">
+      <div class="stat-item">
+        <div class="stat-value" id="stats-active-viewers">0</div>
+        <div class="stat-label">🔴 Penonton</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stats-unique-viewers">0</div>
+        <div class="stat-label">👥 Mampir</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stats-likes">0</div>
+        <div class="stat-label">👍 Likes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stats-coins">0</div>
+        <div class="stat-label">🪙 Koin</div>
+      </div>
+    </header>
+
+    <!-- Connection Box -->
+    <section class="dock-section">
+      <div class="connection-bar">
+        <span class="status-indicator" id="status-indicator"></span>
+        <input type="text" id="input-username" placeholder="Username TikTok..." autocomplete="off">
+        <button id="btn-toggle-connection" class="btn btn-connect">Connect</button>
+      </div>
+    </section>
+
+    <!-- Soundboard Quick Buttons -->
+    <section class="dock-section">
+      <div class="section-header">
+        <h3>Soundboard</h3>
+      </div>
+      <div class="soundboard-grid" id="soundboard-grid">
+        <button class="sb-btn" data-event="follow">Follow</button>
+        <button class="sb-btn" data-event="share">Share</button>
+        <button class="sb-btn" data-event="gift">Gift</button>
+        <button class="sb-btn" data-event="subscribe">Sub</button>
+        <button class="sb-btn" data-event="custom1">Horn</button>
+        <button class="sb-btn" data-event="custom2">Clap</button>
+      </div>
+    </section>
+
+    <!-- Unified Activity Log & Live Chat -->
+    <section class="dock-section log-section">
+      <div class="section-header">
+        <h3>Aktivitas Stream</h3>
+      </div>
+      <div class="activity-feed" id="activity-feed">
+        <div class="feed-item system">
+          <div class="item-content">SolopTik OBS Dock Active. Menunggu event live stream...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collapsible offline simulator -->
+    <section class="dock-section collapsible">
+      <div class="section-header toggle-header" id="simulator-toggle">
+        <h3>Offline Simulator</h3>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="simulator-body hidden" id="simulator-body">
+        <div class="sim-row">
+          <button class="btn btn-sim" data-type="follow">Follow</button>
+          <button class="btn btn-sim" data-type="share">Share</button>
+          <button class="btn btn-sim" data-type="subscribe">Sub</button>
+        </div>
+        <div class="sim-row">
+          <button class="btn btn-sim" data-type="like">Like</button>
+          <button class="btn btn-sim" data-type="chat">Chat</button>
+          <button class="btn btn-sim" data-type="gift">Gift</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="obs-dock.js"></script>
+</body>
+</html>

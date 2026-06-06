@@ -1,0 +1,34 @@
+{
+  "name": "soloptik",
+  "version": "1.0.0",
+  "description": "TikTok Live Interactive Alerts and Overlays",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "pkg . --out-path dist --targets node18-win-x64"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "tiktok-live-connector": "^2.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ]
+  },
+  "keywords": [
+    "tiktok",
+    "live",
+    "overlay",
+    "obs",
+    "widgets"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

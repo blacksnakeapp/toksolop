@@ -1,0 +1,339 @@
+:root {
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff0055;
+  --neon-purple: #8e2de2;
+  --neon-green: #00ff66;
+  --gold-color: #ffd700;
+  --silver-color: #c0c0c0;
+  --bronze-color: #cd7f32;
+  --text-white: #ffffff;
+}
+
+body {
+  margin: 0;
+  padding: 10px;
+  background: transparent;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Base Wrapper */
+#leaderboard-wrapper {
+  width: 380px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Header & Title */
+#leaderboard-header {
+  margin-bottom: 15px;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+#leaderboard-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0,0,0,0.5);
+}
+
+/* List Items Container */
+#leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Empty State */
+.leaderboard-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  padding: 20px 0;
+  font-style: italic;
+}
+
+/* Row Item */
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  position: relative;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slideInRow 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation-delay: var(--delay, 0s);
+  box-sizing: border-box;
+}
+
+@keyframes slideInRow {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Rank Badge */
+.rank-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Special Rank Badges for Top 3 */
+.rank-1 .rank-badge {
+  background: var(--gold-color);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+.rank-2 .rank-badge {
+  background: var(--silver-color);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(192, 192, 192, 0.6);
+}
+.rank-3 .rank-badge {
+  background: var(--bronze-color);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.6);
+}
+
+/* Avatar */
+.rank-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.rank-1 .rank-avatar { border-color: var(--gold-color); }
+.rank-2 .rank-avatar { border-color: var(--silver-color); }
+.rank-3 .rank-avatar { border-color: var(--bronze-color); }
+
+/* Name */
+.rank-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+/* Coins Info */
+.rank-coins {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+.rank-coins span {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  display: block;
+}
+
+/* ========================================================
+   THEME STYLES (1 to 5)
+   ======================================================== */
+
+/* STYLE 1: Frosted Minimalist Glass */
+.style-1 {
+  background: rgba(20, 20, 25, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.style-1 .leaderboard-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.style-1 .leaderboard-item.rank-1 {
+  background: rgba(255, 215, 0, 0.08);
+  border-color: rgba(255, 215, 0, 0.25);
+}
+.style-1 #leaderboard-title {
+  background: linear-gradient(135deg, #fff, #aaa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* STYLE 2: Cyber Neon Grid */
+.style-2 {
+  background: rgba(5, 5, 10, 0.8);
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+}
+.style-2 #leaderboard-title {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 20px rgba(255, 0, 85, 0.4);
+}
+.style-2 .leaderboard-item {
+  background: rgba(10, 10, 20, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+.style-2 .leaderboard-item.rank-1 {
+  border-color: var(--neon-pink);
+  box-shadow: inset 0 0 10px rgba(255, 0, 85, 0.15);
+}
+.style-2 .rank-name {
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+}
+.style-2 .rank-coins span {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+/* STYLE 3: Holographic Rainbow */
+.style-3 {
+  background: rgba(15, 10, 25, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.style-3::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 20px;
+  padding: 1.5px;
+  background: linear-gradient(120deg, #ff0055, #00f0ff, #00ff66, #ff0055);
+  background-size: 300% 300%;
+  animation: holoSweep 6s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+@keyframes holoSweep {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.style-3 #leaderboard-title {
+  background: linear-gradient(90deg, #ff0055, #00f0ff, #ff0055);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: holoSweep 4s linear infinite;
+}
+.style-3 .leaderboard-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.style-3 .leaderboard-item.rank-1 {
+  background: linear-gradient(135deg, rgba(255,0,85,0.1), rgba(0,240,255,0.1));
+}
+
+/* STYLE 4: Kawaii Pastel Soft */
+.style-4 {
+  background: rgba(255, 240, 245, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 182, 193, 0.6);
+  box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+}
+.style-4 #leaderboard-title {
+  color: #ff69b4;
+  font-family: 'Outfit', sans-serif;
+  text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+}
+.style-4 .leaderboard-item {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 192, 203, 0.4);
+  border-radius: 18px;
+}
+.style-4 .rank-name {
+  color: #ff69b4;
+}
+.style-4 .rank-coins {
+  color: #c71585;
+}
+.style-4 .rank-coins span {
+  color: #ff1493;
+}
+.style-4 .rank-badge {
+  background: #ffb6c1;
+  color: #fff;
+  border-color: #ffb6c1;
+}
+
+/* STYLE 5: Retro Pixel Arcade */
+.style-5 {
+  background: #000;
+  border: 4px solid #fff;
+  border-radius: 0;
+  box-shadow: 8px 8px 0px #000;
+}
+.style-5 #leaderboard-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 18px;
+  color: #ffd700;
+  text-shadow: none;
+}
+.style-5 .leaderboard-item {
+  background: #111;
+  border: 2px solid #333;
+  border-radius: 0;
+  animation: slideInRow 0.3s steps(4) forwards;
+}
+.style-5 .leaderboard-item.rank-1 {
+  border-color: #ffd700;
+}
+.style-5 .rank-badge {
+  font-family: 'Press Start 2P', cursive;
+  border-radius: 0;
+  background: #333;
+  font-size: 10px;
+}
+.style-5 .rank-name {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+}
+.style-5 .rank-coins {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+}
+.style-5 .rank-coins span {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: #00ff66;
+}
+.style-5 .rank-avatar {
+  border-radius: 0;
+  border: 2px solid #fff;
+}

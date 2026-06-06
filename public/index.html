@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolopTik - TikTok Live Interactive Dashboard</title>
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="glass-bg-deco circle-1"></div>
+  <div class="glass-bg-deco circle-2"></div>
+  
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-icon">ST</div>
+        <h2>Solop<span>Tik</span></h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#connection" class="nav-item active" data-tab="connection">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"/><path d="M18 8h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4"/><circle cx="8" cy="12" r="2"/></svg>
+          Koneksi Stream
+        </a>
+        <a href="#styles" class="nav-item" data-tab="styles">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          Model Overlay
+        </a>
+        <a href="#rules" class="nav-item" data-tab="rules">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Target & Subathon
+        </a>
+        <a href="#soundboard" class="nav-item" data-tab="soundboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5v14M22 9v6M7 7v10M2 10v4"/></svg>
+          Soundboard
+        </a>
+        <a href="#simulator" class="nav-item" data-tab="simulator">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Simulator Event
+        </a>
+        <a href="#obs-links" class="nav-item" data-tab="obs-links">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          OBS Widget Links
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="btn-open-dock" class="btn btn-secondary btn-block">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          Buka Control Dock
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="content-header">
+        <div class="header-title">
+          <h1 id="page-title">Koneksi Stream</h1>
+          <p id="page-desc">Sambungkan akun TikTok Live Anda dan monitor stats.</p>
+        </div>
+        <div class="stream-stats-quick">
+          <div class="stat-badge">
+            <span class="dot live-dot" id="connection-status-dot"></span>
+            <span class="label" id="connection-status-text">Disconnected</span>
+          </div>
+          <div class="stat-badge">
+            <span class="icon">👥</span>
+            <span id="header-viewers">0</span> Penonton
+          </div>
+          <div class="stat-badge">
+            <span class="icon">🪙</span>
+            <span id="header-coins">0</span> Koin
+          </div>
+        </div>
+      </header>
+
+      <!-- Connection Tab -->
+      <section id="tab-connection" class="tab-pane active">
+
+        <!-- Live Connection Status Banner -->
+        <div id="connection-banner" class="connection-status-banner state-disconnected">
+          <div class="status-ripple"></div>
+          <div class="status-icon-wrap" id="banner-icon">📡</div>
+          <div class="status-text-group">
+            <div class="status-main-label" id="banner-label">Tidak Terhubung</div>
+            <div class="status-sub-label" id="banner-sub">Masukkan username TikTok dan klik Connect Live untuk mulai memantau stream Anda.</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card glass-card">
+            <h3>Konfigurasi Akun TikTok</h3>
+            <p class="card-subtitle">Masukkan username akun TikTok Anda yang sedang melakukan live stream.</p>
+            <div class="form-group">
+              <label for="input-username">Username TikTok</label>
+              <div class="input-with-button">
+                <span class="input-prefix">@</span>
+                <input type="text" id="input-username" placeholder="username_anda" autocomplete="off">
+              </div>
+            </div>
+            <div class="connection-actions">
+              <button id="btn-connect" class="btn btn-primary">Connect Live</button>
+              <button id="btn-disconnect" class="btn btn-danger disabled" disabled>Disconnect</button>
+            </div>
+            <div class="connection-info-box warning-box mt-20">
+              <h4>PENTING UNTUK DIKETAHUI</h4>
+              <ul>
+                <li>Pastikan akun TikTok yang dimasukkan sudah berstatus <strong>LIVE</strong> saat menghubungkan.</li>
+                <li>Jika gagal terhubung, gunakan <strong>Simulator Event</strong> untuk menguji visual overlay secara offline.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card glass-card">
+            <h3>Statistik Stream Real-Time</h3>
+            <p class="card-subtitle">Akumulasi performa live stream saat ini.</p>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value" id="stats-active-viewers">0</div>
+                <div class="stat-lbl">Real-time Penonton</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="stats-unique-viewers">0</div>
+                <div class="stat-lbl">Penonton Mampir</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="stats-likes">0</div>
+                <div class="stat-lbl">Total Likes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="stats-coins">0</div>
+                <div class="stat-lbl">Koin Didapatkan</div>
+              </div>
+            </div>
+            <div class="flex-end mt-20">
+              <button id="btn-reset-stats" class="btn btn-secondary btn-sm">Reset Statistik Session</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Styles Tab -->
+      <section id="tab-styles" class="tab-pane">
+        <div class="grid-2">
+          <!-- Left Column: Settings Form -->
+          <div class="card glass-card">
+            <h3>Pilihan Model Visual Overlay</h3>
+            <p class="card-subtitle">Pilih gaya tampilan overlay yang paling cocok dengan nuansa streaming Anda.</p>
+            
+            <form id="styles-form">
+              <div class="form-group">
+                <label for="select-style-chat">Style Chat Overlay</label>
+                <select id="select-style-chat" class="select-control">
+                  <option value="1">Style 1 - Minimalist Glassmorphism</option>
+                  <option value="2">Style 2 - Neon Glowing List</option>
+                  <option value="3">Style 3 - Comic Speech Bubble</option>
+                  <option value="4">Style 4 - Glassmorphic Floating Panel</option>
+                  <option value="5">Style 5 - Minecraft / Retro 8-Bit Pixel</option>
+                  <option value="6">Style 6 - Cyberpunk Hacker Console</option>
+                  <option value="7">Style 7 - Discord / Twitch Clean Feed</option>
+                  <option value="8">Style 8 - Bottom Scrolling Ticker</option>
+                  <option value="9">Style 9 - Sleek Left/Right Sidebar</option>
+                  <option value="10">Style 10 - Moving Rainbow Gradient</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="select-style-follow">Style Follow Alert</label>
+                <select id="select-style-follow" class="select-control">
+                  <option value="1">Style 1 - Frosted Minimalist Glass</option>
+                  <option value="2">Style 2 - Cyber Glass Neon</option>
+                  <option value="3">Style 3 - Comic Pop-Art Glass</option>
+                  <option value="4">Style 4 - Dark Violet Acrylic</option>
+                  <option value="5">Style 5 - Holographic Rainbow Glass</option>
+                  <option value="6">Style 6 - Elegant Golden Glass</option>
+                  <option value="7">Style 7 - Kawaii Pastel Bubble Glass</option>
+                  <option value="8">Style 8 - Retro Scanline Glass</option>
+                  <option value="9">Style 9 - Prism Slash Glass</option>
+                  <option value="10">Style 10 - Glassmorphic Floating Orb</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="select-style-share">Style Share Alert</label>
+                <select id="select-style-share" class="select-control">
+                  <option value="1">Style 1 - Frosted Minimalist Glass</option>
+                  <option value="2">Style 2 - Cyber Glass Neon</option>
+                  <option value="3">Style 3 - Comic Pop-Art Glass</option>
+                  <option value="4">Style 4 - Dark Violet Acrylic</option>
+                  <option value="5">Style 5 - Holographic Rainbow Glass</option>
+                  <option value="6">Style 6 - Elegant Golden Glass</option>
+                  <option value="7">Style 7 - Kawaii Pastel Bubble Glass</option>
+                  <option value="8">Style 8 - Retro Scanline Glass</option>
+                  <option value="9">Style 9 - Prism Slash Glass</option>
+                  <option value="10">Style 10 - Glassmorphic Floating Orb</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="select-style-gift">Style Gift Alert</label>
+                <select id="select-style-gift" class="select-control">
+                  <option value="1">Style 1 - Frosted Minimalist Glass</option>
+                  <option value="2">Style 2 - Cyber Glass Neon</option>
+                  <option value="3">Style 3 - Comic Pop-Art Glass</option>
+                  <option value="4">Style 4 - Dark Violet Acrylic</option>
+                  <option value="5">Style 5 - Holographic Rainbow Glass</option>
+                  <option value="6">Style 6 - Elegant Golden Glass</option>
+                  <option value="7">Style 7 - Kawaii Pastel Bubble Glass</option>
+                  <option value="8">Style 8 - Retro Scanline Glass</option>
+                  <option value="9">Style 9 - Prism Slash Glass</option>
+                  <option value="10">Style 10 - Glassmorphic Floating Orb</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="select-style-subscribe">Style Subscribe Alert</label>
+                <select id="select-style-subscribe" class="select-control">
+                  <option value="1">Style 1 - Frosted Minimalist Glass</option>
+                  <option value="2">Style 2 - Cyber Glass Neon</option>
+                  <option value="3">Style 3 - Comic Pop-Art Glass</option>
+                  <option value="4">Style 4 - Dark Violet Acrylic</option>
+                  <option value="5">Style 5 - Holographic Rainbow Glass</option>
+                  <option value="6">Style 6 - Elegant Golden Glass</option>
+                  <option value="7">Style 7 - Kawaii Pastel Bubble Glass</option>
+                  <option value="8">Style 8 - Retro Scanline Glass</option>
+                  <option value="9">Style 9 - Prism Slash Glass</option>
+                  <option value="10">Style 10 - Glassmorphic Floating Orb</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="select-style-join">Style Join Live Alert</label>
+                <select id="select-style-join" class="select-control">
+                  <option value="1">Style 1 - Frosted Minimalist Glass</option>
+                  <option value="2">Style 2 - Cyber Glass Neon</option>
+                  <option value="3">Style 3 - Comic Pop-Art Glass</option>
+                  <option value="4">Style 4 - Dark Violet Acrylic</option>
+                  <option value="5">Style 5 - Holographic Rainbow Glass</option>
+                  <option value="6">Style 6 - Elegant Golden Glass</option>
+                  <option value="7">Style 7 - Kawaii Pastel Bubble Glass</option>
+                  <option value="8">Style 8 - Retro Scanline Glass</option>
+                  <option value="9">Style 9 - Prism Slash Glass</option>
+                  <option value="10">Style 10 - Glassmorphic Floating Orb</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="input-alert-duration">Durasi Alert (Milidetik)</label>
+                <input type="number" id="input-alert-duration" class="input-control" value="4000" step="500">
+              </div>
+
+              <hr class="form-divider">
+              <h4 class="mt-10">Konfigurasi Top Rank Leaderboard</h4>
+
+              <div class="form-group">
+                <label for="input-leaderboard-title">Judul Papan Peringkat</label>
+                <input type="text" id="input-leaderboard-title" class="input-control" value="TOP DONATOR" placeholder="TOP DONATOR">
+              </div>
+
+              <div class="form-group">
+                <label for="input-leaderboard-limit">Jumlah Urutan Tampil (Top N)</label>
+                <input type="number" id="input-leaderboard-limit" class="input-control" value="5" min="1" max="20">
+              </div>
+
+              <div class="form-group">
+                <label for="select-leaderboard-style">Style Papan Peringkat</label>
+                <select id="select-leaderboard-style" class="select-control">
+                  <option value="1">Style 1 - Frosted Minimalist Glass</option>
+                  <option value="2">Style 2 - Cyber Neon Grid</option>
+                  <option value="3">Style 3 - Holographic Rainbow</option>
+                  <option value="4">Style 4 - Kawaii Pastel Soft</option>
+                  <option value="5">Style 5 - Retro Pixel Arcade</option>
+                </select>
+              </div>
+
+              <div class="flex gap-10 mt-20 flex-end">
+                <button type="button" id="btn-reset-leaderboard" class="btn btn-danger btn-sm">Reset Leaderboard</button>
+                <button type="submit" class="btn btn-primary">Simpan Pilihan Style</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right Column: Live Preview Card -->
+          <div class="card glass-card flex-column">
+            <h3>Pratinjau Live Overlay</h3>
+            <p class="card-subtitle">Uji coba tampilan visual secara langsung sebelum diterapkan di OBS.</p>
+            
+            <div class="preview-selector flex gap-10 mt-10">
+              <button id="btn-prev-chat" type="button" class="btn btn-secondary btn-sm active">Chat Feed</button>
+              <button id="btn-prev-follow" type="button" class="btn btn-secondary btn-sm">Follow Alert</button>
+              <button id="btn-prev-share" type="button" class="btn btn-secondary btn-sm">Share Alert</button>
+              <button id="btn-prev-gift" type="button" class="btn btn-secondary btn-sm">Gift Alert</button>
+              <button id="btn-prev-subscribe" type="button" class="btn btn-secondary btn-sm">Subscribe Alert</button>
+              <button id="btn-prev-join" type="button" class="btn btn-secondary btn-sm">Join Alert</button>
+              <button id="btn-prev-subathon" type="button" class="btn btn-secondary btn-sm">Subathon</button>
+              <button id="btn-prev-goal" type="button" class="btn btn-secondary btn-sm">Gift Goal</button>
+              <button id="btn-prev-leaderboard" type="button" class="btn btn-secondary btn-sm">Top Rank</button>
+            </div>
+
+            <div class="preview-display mt-20">
+              <iframe id="preview-iframe" src="./widgets/chat.html" class="preview-iframe-element"></iframe>
+            </div>
+
+            <div class="preview-actions mt-20">
+              <button id="btn-trigger-preview-sim" type="button" class="btn btn-success btn-block">
+                Simulasikan Event di Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Leaderboard / Top Rank Config Tab (inside Styles tab via card) -->
+      <!-- Note: Leaderboard config is shown as an additional card below the styles section -->
+
+      <!-- Rules / Goals / Subathon Tab -->
+      <section id="tab-rules" class="tab-pane">
+        <div class="grid-2">
+          <!-- Gift Goal Card -->
+          <div class="card glass-card">
+            <h3>Target Pencapaian (Gift Goal)</h3>
+            <p class="card-subtitle">Tentukan target koin dan judul goals yang muncul di overlay progress bar.</p>
+            
+            <div class="form-group">
+              <label for="input-goal-text">Nama Target (Goal Title)</label>
+              <input type="text" id="input-goal-text" class="input-control" value="Target Upgrade PC">
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="input-goal-target">Target Coins</label>
+                <input type="number" id="input-goal-target" class="input-control" value="1000">
+              </div>
+              <div class="form-group">
+                <label for="input-goal-current">Current Coins</label>
+                <input type="number" id="input-goal-current" class="input-control" value="0">
+              </div>
+            </div>
+            <div class="flex-end mt-20">
+              <button id="btn-save-goals" class="btn btn-primary">Update Goal</button>
+            </div>
+          </div>
+
+          <!-- Subathon Settings Card -->
+          <div class="card glass-card">
+            <h3>Sesi Subathon Marathon</h3>
+            <p class="card-subtitle">Pengaturan otomatis penambahan waktu countdown timer berdasarkan aktivitas penonton.</p>
+            
+            <div class="form-group">
+              <label for="input-timer-start">Durasi Awal Subathon (Jam:Menit:Detik)</label>
+              <div class="flex gap-10">
+                <input type="number" id="input-timer-hours" class="input-control align-center" placeholder="Jam" value="1" min="0">
+                <input type="number" id="input-timer-mins" class="input-control align-center" placeholder="Menit" value="0" min="0" max="59">
+                <input type="number" id="input-timer-secs" class="input-control align-center" placeholder="Detik" value="0" min="0" max="59">
+              </div>
+            </div>
+
+            <h4 class="mt-20">Aturan Tambah Detik</h4>
+            <div class="grid-2 gap-10">
+              <div class="form-group-compact">
+                <label>Follow (+detik)</label>
+                <input type="number" id="rule-follow" class="input-control-compact" value="5">
+              </div>
+              <div class="form-group-compact">
+                <label>Share (+detik)</label>
+                <input type="number" id="rule-share" class="input-control-compact" value="10">
+              </div>
+              <div class="form-group-compact">
+                <label>Per 100 Likes (+detik)</label>
+                <input type="number" id="rule-like" class="input-control-compact" value="1">
+              </div>
+              <div class="form-group-compact">
+                <label>Per 1 Koin Gift (+detik)</label>
+                <input type="number" id="rule-gift" class="input-control-compact" value="2">
+              </div>
+              <div class="form-group-compact">
+                <label>New Subscribe (+detik)</label>
+                <input type="number" id="rule-subscribe" class="input-control-compact" value="30">
+              </div>
+            </div>
+
+            <div class="flex gap-10 mt-30 flex-end">
+              <button id="btn-control-timer" class="btn btn-success">Mulai Timer</button>
+              <button id="btn-save-subathon" class="btn btn-primary">Simpan Setelan</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Soundboard Tab -->
+      <section id="tab-soundboard" class="tab-pane">
+        <div class="card glass-card">
+          <h3>Pengaturan Soundboard Alert</h3>
+          <p class="card-subtitle">Petakan suara kustom Anda yang ada di folder <code>custom_sounds/</code> atau gunakan synthesizer bawaan kami.</p>
+          
+          <div class="soundboard-mappings mt-20">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Kategori Event</th>
+                  <th>Sumber Suara</th>
+                  <th>Test Putar</th>
+                </tr>
+              </thead>
+              <tbody id="soundboard-table-body">
+                <tr>
+                  <td>Follow Event</td>
+                  <td>
+                    <select id="sb-follow" class="select-control select-sound-source">
+                      <option value="synth_cheer">Synthesizer: Cheer</option>
+                      <option value="synth_ding">Synthesizer: Ding</option>
+                      <option value="synth_coin">Synthesizer: Coin Catch</option>
+                      <option value="synth_levelup">Synthesizer: Level Up</option>
+                      <option value="none">Tanpa Suara</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="follow">▶ Test</button></td>
+                </tr>
+                <tr>
+                  <td>Share Event</td>
+                  <td>
+                    <select id="sb-share" class="select-control select-sound-source">
+                      <option value="synth_cheer">Synthesizer: Cheer</option>
+                      <option value="synth_ding" selected>Synthesizer: Ding</option>
+                      <option value="synth_coin">Synthesizer: Coin Catch</option>
+                      <option value="synth_levelup">Synthesizer: Level Up</option>
+                      <option value="none">Tanpa Suara</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="share">▶ Test</button></td>
+                </tr>
+                <tr>
+                  <td>Gift Event</td>
+                  <td>
+                    <select id="sb-gift" class="select-control select-sound-source">
+                      <option value="synth_cheer">Synthesizer: Cheer</option>
+                      <option value="synth_ding">Synthesizer: Ding</option>
+                      <option value="synth_coin" selected>Synthesizer: Coin Catch</option>
+                      <option value="synth_levelup">Synthesizer: Level Up</option>
+                      <option value="none">Tanpa Suara</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="gift">▶ Test</button></td>
+                </tr>
+                <tr>
+                  <td>Subscribe Event</td>
+                  <td>
+                    <select id="sb-subscribe" class="select-control select-sound-source">
+                      <option value="synth_cheer">Synthesizer: Cheer</option>
+                      <option value="synth_ding">Synthesizer: Ding</option>
+                      <option value="synth_coin">Synthesizer: Coin Catch</option>
+                      <option value="synth_levelup" selected>Synthesizer: Level Up</option>
+                      <option value="none">Tanpa Suara</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="subscribe">▶ Test</button></td>
+                </tr>
+                <tr>
+                  <td>Join Live Event</td>
+                  <td>
+                    <select id="sb-join" class="select-control select-sound-source">
+                      <option value="synth_cheer">Synthesizer: Cheer</option>
+                      <option value="synth_ding" selected>Synthesizer: Ding</option>
+                      <option value="synth_coin">Synthesizer: Coin Catch</option>
+                      <option value="synth_levelup">Synthesizer: Level Up</option>
+                      <option value="none">Tanpa Suara</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="join">▶ Test</button></td>
+                </tr>
+                <!-- Manual Custom Buttons -->
+                <tr>
+                  <td>Custom Soundboard Button 1</td>
+                  <td>
+                    <select id="sb-custom1" class="select-control select-sound-source">
+                      <option value="synth_horn" selected>Synthesizer: Air Horn</option>
+                      <option value="synth_clapping">Synthesizer: Applause</option>
+                      <option value="synth_bell">Synthesizer: Bell Toll</option>
+                      <option value="synth_error">Synthesizer: Error Buzz</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="custom1">▶ Test</button></td>
+                </tr>
+                <tr>
+                  <td>Custom Soundboard Button 2</td>
+                  <td>
+                    <select id="sb-custom2" class="select-control select-sound-source">
+                      <option value="synth_horn">Synthesizer: Air Horn</option>
+                      <option value="synth_clapping" selected>Synthesizer: Applause</option>
+                      <option value="synth_bell">Synthesizer: Bell Toll</option>
+                      <option value="synth_error">Synthesizer: Error Buzz</option>
+                    </select>
+                  </td>
+                  <td><button class="btn btn-secondary btn-sm btn-play-sound" data-event="custom2">▶ Test</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="connection-info-box mt-30">
+            <h4>BAGAIMANA CARA MENAMBAHKAN SUARA ANDA SENDIRI?</h4>
+            <p>1. Buka folder lokasi di mana file <code>soloptik.exe</code> berada.</p>
+            <p>2. Cari folder bernama <code>custom_sounds/</code> (folder ini dibuat otomatis setelah pertama kali dijalankan).</p>
+            <p>3. Masukkan file audio favorit Anda (format <code>.mp3</code>, <code>.wav</code>, atau <code>.ogg</code>) ke dalam folder tersebut.</p>
+            <p>4. Refresh dashboard ini, dan suara Anda akan otomatis muncul di dropdown pilihan di atas!</p>
+          </div>
+
+          <div class="flex-end mt-30">
+            <button id="btn-save-soundboard" class="btn btn-primary">Simpan Mapping Suara</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Simulator Tab -->
+      <section id="tab-simulator" class="tab-pane">
+        <div class="card glass-card">
+          <h3>Simulator Event Offline</h3>
+          <p class="card-subtitle">Uji coba visual alert, efek suara, chat overlay, dan subathon timer Anda secara offline tanpa perlu LIVE di TikTok.</p>
+          
+          <div class="grid-3 gap-20 mt-20">
+            <div class="sim-card">
+              <h4>Simulasi Follow</h4>
+              <p>Memicu alert follow di overlay.</p>
+              <button class="btn btn-primary btn-block btn-sim" data-type="follow">Kirim Test Follow</button>
+            </div>
+            
+            <div class="sim-card">
+              <h4>Simulasi Share</h4>
+              <p>Memicu alert share di overlay.</p>
+              <button class="btn btn-primary btn-block btn-sim" data-type="share">Kirim Test Share</button>
+            </div>
+
+            <div class="sim-card">
+              <h4>Simulasi Subscribe</h4>
+              <p>Memicu alert subscribe di overlay.</p>
+              <button class="btn btn-primary btn-block btn-sim" data-type="subscribe">Kirim Test Subscribe</button>
+            </div>
+
+            <div class="sim-card">
+              <h4>Simulasi Join Live</h4>
+              <p>Memicu alert join live di overlay.</p>
+              <button class="btn btn-warning btn-block btn-sim" data-type="join">Kirim Test Join</button>
+            </div>
+
+            <div class="sim-card">
+              <h4>Simulasi Chat</h4>
+              <div class="form-group-compact">
+                <input type="text" id="sim-chat-msg" class="input-control-compact" value="Halo bang! Semangat live streamingnya!" placeholder="Tulis komentar...">
+              </div>
+              <button class="btn btn-success btn-block btn-sim" data-type="chat">Kirim Test Chat</button>
+            </div>
+
+            <div class="sim-card">
+              <h4>Simulasi Gift</h4>
+              <div class="form-group-compact">
+                <select id="sim-gift-type" class="select-control select-control-compact">
+                  <option value="Mawar" data-coins="1" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/54c55986427d14cb8d5930e466be5211.png~tplv-obj.png">Mawar (1 Koin)</option>
+                  <option value="Kopi" data-coins="5" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/99f1fa0210214a6006e86427d14cb8d59.png~tplv-obj.png">Kopi (5 Koin)</option>
+                  <option value="TikTok" data-coins="10" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/0fb4a0210214a6006e86427d14cb8d59.png~tplv-obj.png">TikTok (10 Koin)</option>
+                  <option value="Mahkota" data-coins="99" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/aa1f54c55986427d14cb8d5930e466be.png~tplv-obj.png">Mahkota (99 Koin)</option>
+                  <option value="Kuda Poni" data-coins="500" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/77d9c55986427d14cb8d5930e466be52.png~tplv-obj.png">Kuda Poni (500 Koin)</option>
+                  <option value="Singa" data-coins="1000" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/11bc54c55986427d14cb8d5930e466be5.png~tplv-obj.png">Singa (1000 Koin)</option>
+                </select>
+              </div>
+              <button class="btn btn-success btn-block btn-sim" data-type="gift">Kirim Test Gift</button>
+            </div>
+
+            <div class="sim-card">
+              <h4>Simulasi Like</h4>
+              <div class="form-group-compact">
+                <input type="number" id="sim-like-count" class="input-control-compact" value="15" min="1">
+              </div>
+              <button class="btn btn-primary btn-block btn-sim" data-type="like">Kirim Test Likes</button>
+            </div>
+          </div>
+
+            <div class="sim-card">
+              <h4>Simulasi Gift Combo</h4>
+              <p>Kirim beberapa gift cepat untuk uji efek kombo denyut.</p>
+              <div class="form-group-compact">
+                <select id="sim-gift-combo-type" class="select-control select-control-compact">
+                  <option value="Mawar" data-coins="1" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/54c55986427d14cb8d5930e466be5211.png~tplv-obj.png">Mawar (1 Koin)</option>
+                  <option value="Kopi" data-coins="5" data-img="https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/99f1fa0210214a6006e86427d14cb8d59.png~tplv-obj.png">Kopi (5 Koin)</option>
+                </select>
+              </div>
+              <button id="btn-sim-gift-combo" class="btn btn-warning btn-block">Kirim 5x Gift Combo</button>
+            </div>
+
+          <div class="log-panel mt-30">
+            <h4>Live Log Events</h4>
+            <div id="sim-log" class="log-console">
+              [System] SolopTik Offline Simulator Ready. Klik tombol di atas untuk mengirim test event ke overlay Anda...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- OBS Links Tab -->
+      <section id="tab-obs-links" class="tab-pane">
+        <div class="card glass-card">
+          <h3>Tautan Widget Overlay OBS Studio</h3>
+          <p class="card-subtitle">Salin URL di bawah ini lalu pasang di OBS Studio atau TikTok Live Studio Anda sebagai <strong>Browser Source</strong>.</p>
+          
+          <div class="link-copier-list mt-20">
+            <div class="link-item">
+              <div class="link-info">
+                <h4>1. Alert Overlay (Semua Event)</h4>
+                <p>Notifikasi gabungan: Follow, Share, Gift, Subscribe (800 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-alert" readonly value="http://localhost:3000/widgets/alert.html">
+                <button class="btn btn-secondary btn-copy" data-target="url-alert">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>2. Follow Alert (Hanya Follow)</h4>
+                <p>Khusus notifikasi pengikut baru (800 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-alert-follow" readonly value="http://localhost:3000/widgets/alert.html?types=follow">
+                <button class="btn btn-secondary btn-copy" data-target="url-alert-follow">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>3. Share Alert (Hanya Share)</h4>
+                <p>Khusus notifikasi saat penonton membagikan live (800 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-alert-share" readonly value="http://localhost:3000/widgets/alert.html?types=share">
+                <button class="btn btn-secondary btn-copy" data-target="url-alert-share">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>4. Gift Alert (Hanya Gift)</h4>
+                <p>Khusus notifikasi pengiriman kado/hadiah (800 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-alert-gift" readonly value="http://localhost:3000/widgets/alert.html?types=gift">
+                <button class="btn btn-secondary btn-copy" data-target="url-alert-gift">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>5. Subscribe Alert (Hanya Subscribe)</h4>
+                <p>Khusus notifikasi pelanggan/subscriber baru (800 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-alert-sub" readonly value="http://localhost:3000/widgets/alert.html?types=subscribe">
+                <button class="btn btn-secondary btn-copy" data-target="url-alert-sub">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>6. Join Live Alert (Hanya Join)</h4>
+                <p>Khusus notifikasi penonton bergabung (800 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-alert-join" readonly value="http://localhost:3000/widgets/alert.html?types=join">
+                <button class="btn btn-secondary btn-copy" data-target="url-alert-join">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>7. Chat Overlay Widget</h4>
+                <p>Aliran chat penonton transparan & rapi (400 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-chat" readonly value="http://localhost:3000/widgets/chat.html">
+                <button class="btn btn-secondary btn-copy" data-target="url-chat">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>8. Subathon Timer Widget</h4>
+                <p>Waktu hitung mundur marathon stream (400 x 150 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-subathon" readonly value="http://localhost:3000/widgets/subathon.html">
+                <button class="btn btn-secondary btn-copy" data-target="url-subathon">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>9. Gift Goal Meter</h4>
+                <p>Progress bar target koin (600 x 100 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-goal" readonly value="http://localhost:3000/widgets/goal.html">
+                <button class="btn btn-secondary btn-copy" data-target="url-goal">Copy Link</button>
+              </div>
+            </div>
+
+            <div class="link-item">
+              <div class="link-info">
+                <h4>10. Top Rank Leaderboard</h4>
+                <p>Papan peringkat donatur koin terbanyak (400 x 600 px)</p>
+              </div>
+              <div class="link-action">
+                <input type="text" class="link-url-input" id="url-leaderboard" readonly value="http://localhost:3000/widgets/leaderboard.html">
+                <button class="btn btn-secondary btn-copy" data-target="url-leaderboard">Copy Link</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="connection-info-box mt-30">
+            <h4>BAGAIMANA CARA PASANG DI OBS STUDIO?</h4>
+            <p>1. Klik tombol <strong>Copy Link</strong> pada widget yang ingin dipasang.</p>
+            <p>2. Buka OBS Studio -> Di panel <strong>Sources</strong> klik ikon <strong>+</strong> -> Pilih <strong>Browser</strong>.</p>
+            <p>3. Beri nama (misal: "SolopTik Alert") -> Klik OK.</p>
+            <p>4. Di kolom <strong>URL</strong>, hapus link bawaan dan paste link yang sudah disalin tadi.</p>
+            <p>5. Atur Width dan Height sesuai ukuran ideal di atas -> Centang "Control audio via OBS" jika ingin suara dikontrol di OBS -> Klik OK.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Sound trigger utility inside client to test synthesizer sounds -->
+  <script src="client.js"></script>
+</body>
+</html>
