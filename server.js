@@ -264,19 +264,30 @@ function connectTikTok(username) {
         tiktokConnection = null;
       });
 
+    // Helper: extract user fields from v2.x nested structure
+    function extractUser(data) {
+      const u = data.user || data;
+      return {
+        uniqueId: u.uniqueId || data.uniqueId || 'unknown',
+        nickname: u.nickname || u.displayId || data.nickname || u.uniqueId || 'Unknown',
+        profilePictureUrl: (u.profilePicture && u.profilePicture.urlList && u.profilePicture.urlList[0])
+          || u.profilePictureUrl || data.profilePictureUrl || null
+      };
+    }
+
     // Handle TikTok events
     tiktokConnection.on('chat', data => {
-      // Add user to unique visitor set
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
       
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl,
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl,
         comment: data.comment,
-        isModerator: data.isModerator,
-        isSubscriber: data.isSubscriber
+        isModerator: data.isModerator || (data.user && data.user.isModerator),
+        isSubscriber: data.isSubscriber || (data.user && data.user.isSubscriber)
       };
       
       broadcast({ event: 'chat', data: payload });
@@ -284,22 +295,28 @@ function connectTikTok(username) {
     });
 
     tiktokConnection.on('gift', data => {
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
       
-      const coinCount = (data.diamondCount || 1) * (data.repeatCount || 1);
+      const diamondCount = data.diamondCount || (data.gift && data.gift.diamondCount) || 1;
+      const repeatCount = data.repeatCount || 1;
+      const coinCount = diamondCount * repeatCount;
       streamStats.totalCoins += coinCount;
       
       // Update Goal progress
       settings.goals.current += coinCount;
+
+      const giftName = data.giftName || (data.gift && data.gift.name) || 'Gift';
+      const giftImage = data.giftPictureUrl || (data.gift && data.gift.imageUrl) || null;
       
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl,
-        giftName: data.giftName,
-        giftCount: data.repeatCount || 1,
-        giftImage: data.giftPictureUrl,
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl,
+        giftName: giftName,
+        giftCount: repeatCount,
+        giftImage: giftImage,
         coins: coinCount
       };
 
@@ -312,13 +329,14 @@ function connectTikTok(username) {
     });
 
     tiktokConnection.on('follow', data => {
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
 
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl
       };
 
       broadcast({ event: 'follow', data: payload });
@@ -326,13 +344,14 @@ function connectTikTok(username) {
     });
 
     tiktokConnection.on('share', data => {
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
 
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl
       };
 
       broadcast({ event: 'share', data: payload });
@@ -340,13 +359,14 @@ function connectTikTok(username) {
     });
 
     tiktokConnection.on('subscribe', data => {
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
 
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl
       };
 
       broadcast({ event: 'subscribe', data: payload });
@@ -354,13 +374,14 @@ function connectTikTok(username) {
     });
 
     tiktokConnection.on('member', data => {
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
 
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl
       };
 
       broadcast({ event: 'join', data: payload });
@@ -368,16 +389,17 @@ function connectTikTok(username) {
     });
 
     tiktokConnection.on('like', data => {
-      uniqueViewersSet.add(data.uniqueId);
+      const user = extractUser(data);
+      uniqueViewersSet.add(user.uniqueId);
       streamStats.totalUniqueViewers = uniqueViewersSet.size;
       
-      streamStats.totalLikes += (data.likeCount || 1);
+      streamStats.totalLikes += (data.likeCount || data.totalLikeCount || 1);
 
       const payload = {
-        uniqueId: data.uniqueId,
-        nickname: data.nickname,
-        profilePictureUrl: data.profilePictureUrl,
-        likeCount: data.likeCount || 1
+        uniqueId: user.uniqueId,
+        nickname: user.nickname,
+        profilePictureUrl: user.profilePictureUrl,
+        likeCount: data.likeCount || data.totalLikeCount || 1
       };
 
       broadcast({ event: 'like', data: payload });
