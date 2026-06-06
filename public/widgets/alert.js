@@ -423,8 +423,22 @@ function displayAlert(type, data) {
     titleColor = settings.joinTitleColor || '#ffffff';
     descColor = settings.joinDescColor || '#cccccc';
   }
-  
+
+  // Style 5 & 6 use -webkit-text-fill-color: transparent for gradient/shimmer
+  // effect on .alert-title. Inline style.color alone does NOT override -webkit-text-fill-color,
+  // causing the title text to be invisible. We must explicitly set -webkit-text-fill-color too.
+  const isGradientStyle = (styleId === '5' || styleId === '6');
+  if (isGradientStyle) {
+    // Override gradient with plain color so text is always visible
+    titleEl.style.setProperty('-webkit-background-clip', 'unset');
+    titleEl.style.setProperty('background', 'none');
+    titleEl.style.setProperty('-webkit-text-fill-color', titleColor);
+    titleEl.style.setProperty('animation', 'none'); // remove shimmer/holo-text anim
+  } else {
+    titleEl.style.setProperty('-webkit-text-fill-color', titleColor);
+  }
   titleEl.style.color = titleColor;
+  descEl.style.setProperty('-webkit-text-fill-color', descColor);
   descEl.style.color = descColor;
   
   details.appendChild(titleEl);

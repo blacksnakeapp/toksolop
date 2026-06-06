@@ -298,8 +298,20 @@ function connectTikTok(username) {
     function extractUser(data) {
       const u = data.user || data;
 
-      if (!_debugLoggedOnce && data.user) {
+      // DEBUG: Log raw data structure on first event to diagnose missing fields
+      if (!_debugLoggedOnce) {
         _debugLoggedOnce = true;
+        const debugSnapshot = {
+          rootKeys: Object.keys(data),
+          userKeys: data.user ? Object.keys(data.user) : null,
+          uniqueId: data.uniqueId,
+          nickname: data.nickname,
+          user_uniqueId: data.user && data.user.uniqueId,
+          user_nickname: data.user && data.user.nickname,
+          user_displayName: data.user && data.user.displayName,
+          user_name: data.user && data.user.name,
+        };
+        console.log('[DEBUG extractUser] Raw data snapshot:', JSON.stringify(debugSnapshot, null, 2));
       }
 
       // v2.x uses profilePicture.url[] (NOT urlList)
@@ -316,7 +328,7 @@ function connectTikTok(username) {
 
       return {
         uniqueId: u.uniqueId || data.uniqueId || 'unknown',
-        nickname: u.nickname || u.displayId || data.nickname || u.uniqueId || 'Unknown',
+        nickname: u.nickname || u.displayName || u.name || u.displayId || data.nickname || u.uniqueId || data.uniqueId || 'Unknown',
         profilePictureUrl: pic
       };
     }
