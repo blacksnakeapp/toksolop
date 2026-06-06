@@ -59,7 +59,10 @@ function appendChatMessage(data) {
   
   const msg = document.createElement('span');
   msg.className = 'chat-msg';
-  msg.textContent = data.comment;
+  // Potong pesan lebih dari 150 karakter agar tidak nutup layar
+  const MAX_CHARS = 150;
+  const rawMsg = data.comment || '';
+  msg.textContent = rawMsg.length > MAX_CHARS ? rawMsg.substring(0, MAX_CHARS) + '...' : rawMsg;
   
   details.appendChild(user);
   details.appendChild(msg);
