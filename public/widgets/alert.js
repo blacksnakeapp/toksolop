@@ -191,6 +191,7 @@ function initWebSocket() {
       case 'settings':
       case 'settingsUpdated':
         settings = { ...settings, ...payload.data };
+        applyCustomStyles();
         break;
         
       case 'follow':
@@ -485,6 +486,26 @@ function playAudioSource(src) {
       console.warn("Failed to play alert sound file:", err.message);
     });
   }
+}
+
+function applyCustomStyles() {
+  let styleEl = document.getElementById('custom-alert-colors');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-alert-colors';
+    document.head.appendChild(styleEl);
+  }
+  const titleColor = settings.alertTitleColor || '#ffffff';
+  const descColor = settings.alertDescColor || '#cccccc';
+  
+  styleEl.textContent = `
+    .alert-title {
+      color: ${titleColor} !important;
+    }
+    .alert-description {
+      color: ${descColor} !important;
+    }
+  `;
 }
 
 // Start

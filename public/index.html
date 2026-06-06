@@ -246,11 +246,73 @@
                   <option value="9">Style 9 - Prism Slash Glass</option>
                   <option value="10">Style 10 - Glassmorphic Floating Orb</option>
                 </select>
+                            <div class="form-group">
+                <label for="input-alert-duration">Durasi Alert (Milidetik)</label>
+                <input type="number" id="input-alert-duration" class="input-control" value="4000" step="500">
+              </div>
+
+              <hr class="form-divider">
+              <h4 class="mt-10">Kustomisasi Teks & Warna Chat Feed</h4>
+
+              <div class="form-group">
+                <label for="input-chat-max-chars">Batas Karakter Chat</label>
+                <input type="number" id="input-chat-max-chars" class="input-control" value="150" min="10" max="500">
               </div>
 
               <div class="form-group">
-                <label for="input-alert-duration">Durasi Alert (Milidetik)</label>
-                <input type="number" id="input-alert-duration" class="input-control" value="4000" step="500">
+                <label for="select-chat-font">Font Family Chat</label>
+                <select id="select-chat-font" class="select-control">
+                  <option value="Inter">Inter (Modern Sans)</option>
+                  <option value="Outfit">Outfit (Round Bold)</option>
+                  <option value="Press Start 2P">Press Start 2P (Retro 8-Bit)</option>
+                  <option value="Orbitron">Orbitron (Cyberpunk Sci-Fi)</option>
+                  <option value="Bangers">Bangers (Comic Cartoon)</option>
+                  <option value="Arial">Arial (Standard)</option>
+                  <option value="Courier New">Courier New (Monospace)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="input-chat-font-size">Ukuran Font Chat (px)</label>
+                <input type="number" id="input-chat-font-size" class="input-control" value="13" min="8" max="36">
+              </div>
+
+              <div class="form-group">
+                <label for="input-chat-user-color">Warna Username Chat</label>
+                <input type="color" id="input-chat-user-color" class="input-control color-picker" value="#00f0ff">
+              </div>
+
+              <div class="form-group">
+                <label for="input-chat-msg-color">Warna Pesan Chat</label>
+                <input type="color" id="input-chat-msg-color" class="input-control color-picker" value="#ffffff">
+              </div>
+
+              <hr class="form-divider">
+              <h4 class="mt-10">Kustomisasi Warna Font Overlay Lainnya</h4>
+
+              <div class="form-group">
+                <label for="input-alert-title-color">Warna Judul Alert (Follow/Gift/dst)</label>
+                <input type="color" id="input-alert-title-color" class="input-control color-picker" value="#ffffff">
+              </div>
+
+              <div class="form-group">
+                <label for="input-alert-desc-color">Warna Deskripsi Alert</label>
+                <input type="color" id="input-alert-desc-color" class="input-control color-picker" value="#cccccc">
+              </div>
+
+              <div class="form-group">
+                <label for="input-goal-font-color">Warna Teks Goal Gift</label>
+                <input type="color" id="input-goal-font-color" class="input-control color-picker" value="#ffffff">
+              </div>
+
+              <div class="form-group">
+                <label for="input-subathon-font-color">Warna Angka/Teks Subathon Timer</label>
+                <input type="color" id="input-subathon-font-color" class="input-control color-picker" value="#ffffff">
+              </div>
+
+              <div class="form-group">
+                <label for="input-leaderboard-font-color">Warna Teks Leaderboard</label>
+                <input type="color" id="input-leaderboard-font-color" class="input-control color-picker" value="#ffffff">
               </div>
 
               <hr class="form-divider">

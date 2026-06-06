@@ -1,5 +1,6 @@
 let ws = null;
 let currentStyle = "1";
+let settings = {};
 const chatContainer = document.getElementById('chat-container');
 
 function initWebSocket() {
@@ -14,7 +15,9 @@ function initWebSocket() {
     switch (payload.event) {
       case 'settings':
       case 'settingsUpdated':
-        updateStyle(payload.data.chatStyle || "1");
+        settings = payload.data;
+        updateStyle(settings.chatStyle || "1");
+        applyCustomTypography();
         break;
         
       case 'chat':
@@ -26,6 +29,33 @@ function initWebSocket() {
   ws.onclose = () => {
     setTimeout(initWebSocket, 2000);
   };
+}
+
+function applyCustomTypography() {
+  let styleEl = document.getElementById('custom-typography-styles');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-typography-styles';
+    document.head.appendChild(styleEl);
+  }
+  
+  const font = settings.chatFont || 'Inter';
+  const size = settings.chatFontSize || 13;
+  const userColor = settings.chatUsernameColor || '#00f0ff';
+  const msgColor = settings.chatMessageColor || '#ffffff';
+  
+  styleEl.textContent = `
+    #chat-container, .chat-item, .chat-user, .chat-msg {
+      font-family: '${font}', sans-serif !important;
+    }
+    .chat-user {
+      color: ${userColor} !important;
+    }
+    .chat-msg {
+      font-size: ${size}px !important;
+      color: ${msgColor} !important;
+    }
+  `;
 }
 
 function updateStyle(styleId) {
@@ -59,8 +89,8 @@ function appendChatMessage(data) {
   
   const msg = document.createElement('span');
   msg.className = 'chat-msg';
-  // Potong pesan lebih dari 150 karakter agar tidak nutup layar
-  const MAX_CHARS = 150;
+  // Potong pesan dinamis berdasarkan setelan max chars
+  const MAX_CHARS = settings.chatMaxChars || 150;
   const rawMsg = data.comment || '';
   msg.textContent = rawMsg.length > MAX_CHARS ? rawMsg.substring(0, MAX_CHARS) + '...' : rawMsg;
   

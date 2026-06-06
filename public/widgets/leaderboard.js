@@ -20,6 +20,7 @@ function initWebSocket() {
       case 'settingsUpdated':
         settings = { ...settings, ...payload.data };
         updateSettingsUI();
+        applyCustomStyles();
         renderLeaderboard();
         break;
         
@@ -99,6 +100,21 @@ function renderLeaderboard() {
     
     listEl.appendChild(row);
   });
+}
+
+function applyCustomStyles() {
+  let styleEl = document.getElementById('custom-leaderboard-colors');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-leaderboard-colors';
+    document.head.appendChild(styleEl);
+  }
+  const color = settings.leaderboardFontColor || '#ffffff';
+  styleEl.textContent = `
+    body, #leaderboard-wrapper, #leaderboard-title, .rank-name, .rank-coins, .leaderboard-empty, .rank-coins span {
+      color: ${color} !important;
+    }
+  `;
 }
 
 initWebSocket();

@@ -346,6 +346,20 @@ function updateFormValues() {
   document.getElementById('select-style-join').value = settings.joinStyle || "1";
   document.getElementById('input-alert-duration').value = settings.alertDuration;
   
+  // Chat Typography
+  document.getElementById('input-chat-max-chars').value = settings.chatMaxChars || 150;
+  document.getElementById('select-chat-font').value = settings.chatFont || "Inter";
+  document.getElementById('input-chat-font-size').value = settings.chatFontSize || 13;
+  document.getElementById('input-chat-user-color').value = settings.chatUsernameColor || "#00f0ff";
+  document.getElementById('input-chat-msg-color').value = settings.chatMessageColor || "#ffffff";
+
+  // Other Overlays Color Customization
+  document.getElementById('input-alert-title-color').value = settings.alertTitleColor || "#ffffff";
+  document.getElementById('input-alert-desc-color').value = settings.alertDescColor || "#cccccc";
+  document.getElementById('input-goal-font-color').value = settings.goalFontColor || "#ffffff";
+  document.getElementById('input-subathon-font-color').value = settings.subathonFontColor || "#ffffff";
+  document.getElementById('input-leaderboard-font-color').value = settings.leaderboardFontColor || "#ffffff";
+
   // Leaderboard
   document.getElementById('input-leaderboard-title').value = settings.leaderboardTitle || 'TOP DONATOR';
   document.getElementById('input-leaderboard-limit').value = settings.leaderboardLimit || 5;
@@ -566,6 +580,21 @@ document.getElementById('styles-form').addEventListener('submit', (e) => {
     subscribeStyle: document.getElementById('select-style-subscribe').value,
     joinStyle: document.getElementById('select-style-join').value,
     alertDuration: parseInt(document.getElementById('input-alert-duration').value, 10) || 4000,
+    
+    // Chat Typography
+    chatMaxChars: parseInt(document.getElementById('input-chat-max-chars').value, 10) || 150,
+    chatFont: document.getElementById('select-chat-font').value,
+    chatFontSize: parseInt(document.getElementById('input-chat-font-size').value, 10) || 13,
+    chatUsernameColor: document.getElementById('input-chat-user-color').value,
+    chatMessageColor: document.getElementById('input-chat-msg-color').value,
+
+    // Other Overlays Custom Colors
+    alertTitleColor: document.getElementById('input-alert-title-color').value,
+    alertDescColor: document.getElementById('input-alert-desc-color').value,
+    goalFontColor: document.getElementById('input-goal-font-color').value,
+    subathonFontColor: document.getElementById('input-subathon-font-color').value,
+    leaderboardFontColor: document.getElementById('input-leaderboard-font-color').value,
+
     leaderboardTitle: document.getElementById('input-leaderboard-title').value || 'TOP DONATOR',
     leaderboardLimit: parseInt(document.getElementById('input-leaderboard-limit').value, 10) || 5,
     leaderboardStyle: document.getElementById('select-leaderboard-style').value

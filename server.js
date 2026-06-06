@@ -65,6 +65,27 @@ const defaultSettings = {
   leaderboardLimit: 5,
   leaderboardStyle: "1",
   leaderboardTitle: "TOP DONATOR",
+
+  // Chat Overlay Typography
+  chatMaxChars: 150,
+  chatFont: "Inter",
+  chatFontSize: 13,
+  chatUsernameColor: "#00f0ff",
+  chatMessageColor: "#ffffff",
+
+  // Alert Overlay Typography
+  alertTitleColor: "#ffffff",
+  alertDescColor: "#cccccc",
+
+  // Goal Overlay Typography
+  goalFontColor: "#ffffff",
+
+  // Subathon Overlay Typography
+  subathonFontColor: "#ffffff",
+
+  // Leaderboard Overlay Typography
+  leaderboardFontColor: "#ffffff",
+
   rules: {
     follow: 5, // +5s
     share: 10, // +10s

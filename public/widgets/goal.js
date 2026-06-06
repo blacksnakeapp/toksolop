@@ -25,8 +25,9 @@ function initWebSocket() {
       case 'settingsUpdated':
         if (payload.data.goals) {
           goals = payload.data.goals;
-          updateGoalUI();
         }
+        applyCustomStyles(payload.data);
+        updateGoalUI();
         break;
         
       case 'gift':
@@ -41,6 +42,21 @@ function initWebSocket() {
   ws.onclose = () => {
     setTimeout(initWebSocket, 2000);
   };
+}
+
+function applyCustomStyles(data) {
+  let styleEl = document.getElementById('custom-goal-colors');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-goal-colors';
+    document.head.appendChild(styleEl);
+  }
+  const color = data.goalFontColor || '#ffffff';
+  styleEl.textContent = `
+    body, #goal-container, #goal-title, #goal-percentage, #goal-target, #goal-current, .goal-bar-label {
+      color: ${color} !important;
+    }
+  `;
 }
 
 function updateGoalUI() {

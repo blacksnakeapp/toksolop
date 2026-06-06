@@ -35,6 +35,7 @@ function initWebSocket() {
         const prevSeconds = settings.subathonSeconds;
         
         settings = { ...settings, ...payload.data };
+        applyCustomStyles();
         
         // Sync local seconds if server sent a different value
         if (Math.abs(localSeconds - settings.subathonSeconds) > 3 || prevSeconds !== settings.subathonSeconds) {
@@ -156,6 +157,21 @@ async function saveTimeToServer() {
   } catch (err) {
     console.warn("Failed to persist timer seconds back to server:", err);
   }
+}
+
+function applyCustomStyles() {
+  let styleEl = document.getElementById('custom-subathon-colors');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-subathon-colors';
+    document.head.appendChild(styleEl);
+  }
+  const color = settings.subathonFontColor || '#ffffff';
+  styleEl.textContent = `
+    body, #timer-container, #timer-title, #timer-clock, #timer-alert {
+      color: ${color} !important;
+    }
+  `;
 }
 
 // Start
