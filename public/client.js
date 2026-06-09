@@ -321,7 +321,35 @@ function initWebSocket() {
         addLog(`[Join] @${payload.data.uniqueId} bergabung ke live stream!`);
         break;
       case 'like':
-        addLog(`[Like] @${payload.data.uniqueId} menyukai stream x${payload.data.likeCount}`);
+        {
+          const uId = payload.data.uniqueId;
+          const likeCount = payload.data.likeCount || 1;
+          
+          if (!window.clientLikesData) {
+            window.clientLikesData = {};
+          }
+          window.clientLikesData[uId] = (window.clientLikesData[uId] || 0) + likeCount;
+          
+          if (simLog) {
+            const lines = simLog.innerHTML.split('\n');
+            let updated = false;
+            // Search the last 5 lines for matching user like
+            for (let i = lines.length - 1; i >= Math.max(0, lines.length - 5); i--) {
+              if (lines[i].includes(`[Like] @${uId}`)) {
+                const time = new Date().toLocaleTimeString();
+                lines[i] = `[${time}] [Like] @${uId} menyukai stream (Total ${window.clientLikesData[uId]} Likes)`;
+                updated = true;
+                break;
+              }
+            }
+            if (updated) {
+              simLog.innerHTML = lines.join('\n');
+              simLog.scrollTop = simLog.scrollHeight;
+            } else {
+              addLog(`[Like] @${uId} menyukai stream (Total ${window.clientLikesData[uId]} Likes)`);
+            }
+          }
+        }
         break;
     }
   };
@@ -364,6 +392,11 @@ function updateFormValues() {
   document.getElementById('input-subscribe-desc-color').value = settings.subscribeDescColor || "#cccccc";
   document.getElementById('input-join-title-color').value = settings.joinTitleColor || "#ffffff";
   document.getElementById('input-join-desc-color').value = settings.joinDescColor || "#cccccc";
+  
+  // All Events Custom Colors & Styles
+  document.getElementById('select-style-all-events').value = settings.allEventsStyle || "1";
+  document.getElementById('input-all-events-title-color').value = settings.allEventsTitleColor || "#ffffff";
+  document.getElementById('input-all-events-desc-color').value = settings.allEventsDescColor || "#e0e0e0";
   
   document.getElementById('input-goal-font-color').value = settings.goalFontColor || "#ffffff";
   document.getElementById('input-subathon-font-color').value = settings.subathonFontColor || "#ffffff";
@@ -411,6 +444,7 @@ function updateFormValues() {
     document.getElementById('sb-gift').value = settings.soundboard.gift || "none";
     document.getElementById('sb-subscribe').value = settings.soundboard.subscribe || "none";
     document.getElementById('sb-join').value = settings.soundboard.join || "none";
+    document.getElementById('sb-chat').value = settings.soundboard.chat || "none";
     document.getElementById('sb-custom1').value = settings.soundboard.custom1 || "none";
     document.getElementById('sb-custom2').value = settings.soundboard.custom2 || "none";
   }
@@ -530,18 +564,26 @@ function dismissToast(toast) {
   setTimeout(() => toast.remove(), 380);
 }
 
-// Play sound helper
+let _soundPlaying = false;
 function playAudioSource(src) {
   if (!src || src === 'none') return;
+  if (_soundPlaying) return;
   
+  _soundPlaying = true;
+  const unlockSound = () => { _soundPlaying = false; };
+
   if (src.startsWith('synth_')) {
     playSynthSound(src);
+    setTimeout(unlockSound, 1000); // 1s cooldown
   } else {
     // Custom file play
     const audio = new Audio(src);
     audio.volume = settings.alertVolume !== undefined ? settings.alertVolume : 0.5;
+    audio.addEventListener('ended', unlockSound);
+    audio.addEventListener('error', unlockSound);
     audio.play().catch(err => {
       console.warn('Failed to play audio file:', err.message);
+      unlockSound();
     });
   }
 }
@@ -608,6 +650,11 @@ document.getElementById('styles-form').addEventListener('submit', (e) => {
     subscribeDescColor: document.getElementById('input-subscribe-desc-color').value,
     joinTitleColor: document.getElementById('input-join-title-color').value,
     joinDescColor: document.getElementById('input-join-desc-color').value,
+
+    // All Events Custom Colors & Styles
+    allEventsStyle: document.getElementById('select-style-all-events').value,
+    allEventsTitleColor: document.getElementById('input-all-events-title-color').value,
+    allEventsDescColor: document.getElementById('input-all-events-desc-color').value,
 
     goalFontColor: document.getElementById('input-goal-font-color').value,
     subathonFontColor: document.getElementById('input-subathon-font-color').value,
@@ -677,6 +724,7 @@ document.getElementById('btn-save-soundboard').addEventListener('click', () => {
       gift: document.getElementById('sb-gift').value,
       subscribe: document.getElementById('sb-subscribe').value,
       join: document.getElementById('sb-join').value,
+      chat: document.getElementById('sb-chat').value,
       custom1: document.getElementById('sb-custom1').value,
       custom2: document.getElementById('sb-custom2').value
     }
@@ -748,10 +796,76 @@ document.querySelectorAll('.btn-play-sound').forEach(btn => {
     else if (eventType === 'gift') soundSrc = document.getElementById('sb-gift').value;
     else if (eventType === 'subscribe') soundSrc = document.getElementById('sb-subscribe').value;
     else if (eventType === 'join') soundSrc = document.getElementById('sb-join').value;
+    else if (eventType === 'chat') soundSrc = document.getElementById('sb-chat').value;
     else if (eventType === 'custom1') soundSrc = document.getElementById('sb-custom1').value;
     else if (eventType === 'custom2') soundSrc = document.getElementById('sb-custom2').value;
     
     playAudioSource(soundSrc);
+  });
+});
+
+// Sound Upload Handler
+document.querySelectorAll('.sound-upload-input').forEach(input => {
+  input.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const selectId = input.getAttribute('data-select-id');
+    const selectEl = document.getElementById(selectId);
+    const statusEl = input.parentElement.querySelector('.upload-status');
+
+    if (statusEl) statusEl.textContent = "Uploading...";
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64Data = reader.result.split(',')[1];
+        const res = await fetch('/api/sounds/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            filename: file.name,
+            data: base64Data
+          })
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Gagal mengunggah file.");
+
+        showToast('success', '🎉 Berhasil Mengunggah!', `File ${result.filename} berhasil diunggah dan dipilih.`, 4000);
+        if (statusEl) statusEl.textContent = "Sukses!";
+
+        // Reload sounds list
+        await loadCustomSounds();
+
+        // Select the newly uploaded file in dropdown
+        const expectedValue = `/sounds/custom/${result.filename}`;
+        if (selectEl) {
+          selectEl.value = expectedValue;
+          selectEl.dispatchEvent(new Event('change'));
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        showToast('error', '❌ Gagal Mengunggah', err.message, 5000);
+        if (statusEl) statusEl.textContent = "Gagal!";
+      } finally {
+        // Clear input value so same file can be uploaded again
+        input.value = "";
+        setTimeout(() => {
+          if (statusEl) statusEl.textContent = "";
+        }, 3000);
+      }
+    };
+
+    reader.onerror = () => {
+      showToast('error', '❌ Gagal Membaca File', 'Terjadi kesalahan saat membaca file audio.', 4000);
+      if (statusEl) statusEl.textContent = "Gagal!";
+      input.value = "";
+    };
+
+    reader.readAsDataURL(file);
   });
 });
 
@@ -800,6 +914,7 @@ const btnPrevShare = document.getElementById('btn-prev-share');
 const btnPrevGift = document.getElementById('btn-prev-gift');
 const btnPrevSubscribe = document.getElementById('btn-prev-subscribe');
 const btnPrevJoin = document.getElementById('btn-prev-join');
+const btnPrevAllEvents = document.getElementById('btn-prev-all-events');
 const btnPrevSubathon = document.getElementById('btn-prev-subathon');
 const btnPrevGoal = document.getElementById('btn-prev-goal');
 const btnPrevLeaderboard = document.getElementById('btn-prev-leaderboard');
@@ -808,7 +923,7 @@ const btnTriggerPreviewSim = document.getElementById('btn-trigger-preview-sim');
 let activePreviewMode = 'chat';
 
 const previewButtons = [
-  btnPrevChat, btnPrevFollow, btnPrevShare, btnPrevGift, btnPrevSubscribe, btnPrevJoin, btnPrevSubathon, btnPrevGoal, btnPrevLeaderboard
+  btnPrevChat, btnPrevFollow, btnPrevShare, btnPrevGift, btnPrevSubscribe, btnPrevJoin, btnPrevAllEvents, btnPrevSubathon, btnPrevGoal, btnPrevLeaderboard
 ];
 
 if (btnPrevChat && btnPrevFollow && btnPrevShare && btnPrevGift && btnPrevSubscribe && btnPrevJoin && btnPrevSubathon && btnPrevGoal && previewIframe && btnTriggerPreviewSim) {
@@ -830,6 +945,11 @@ if (btnPrevChat && btnPrevFollow && btnPrevShare && btnPrevGift && btnPrevSubscr
   btnPrevJoin.addEventListener('click', () => {
     setActivePreview('join', './widgets/alert.html', btnPrevJoin);
   });
+  if (btnPrevAllEvents) {
+    btnPrevAllEvents.addEventListener('click', () => {
+      setActivePreview('all-events', './widgets/alert.html', btnPrevAllEvents);
+    });
+  }
   btnPrevSubathon.addEventListener('click', () => {
     setActivePreview('subathon', './widgets/subathon.html', btnPrevSubathon);
   });
@@ -845,8 +965,9 @@ if (btnPrevChat && btnPrevFollow && btnPrevShare && btnPrevGift && btnPrevSubscr
   // Automatically sync style values when changed
   const syncSelects = [
     'select-style-chat', 'select-style-follow', 'select-style-share', 
-    'select-style-gift', 'select-style-subscribe', 'select-style-join', 'input-alert-duration',
-    'input-goal-text', 'input-goal-target', 'input-goal-current',
+    'select-style-gift', 'select-style-subscribe', 'select-style-join',
+    'select-style-all-events', 'input-all-events-title-color', 'input-all-events-desc-color',
+    'input-alert-duration', 'input-goal-text', 'input-goal-target', 'input-goal-current',
     'rule-follow', 'rule-share', 'rule-like', 'rule-gift', 'rule-subscribe',
     'input-leaderboard-title', 'input-leaderboard-limit', 'select-leaderboard-style'
   ];
@@ -858,7 +979,14 @@ if (btnPrevChat && btnPrevFollow && btnPrevShare && btnPrevGift && btnPrevSubscr
     }
   });
 
-  previewIframe.addEventListener('load', syncPreviewStyle);
+  previewIframe.addEventListener('load', () => {
+    syncPreviewStyle();
+    setTimeout(() => {
+      if (btnTriggerPreviewSim) {
+        btnTriggerPreviewSim.click();
+      }
+    }, 500);
+  });
 
   btnTriggerPreviewSim.addEventListener('click', () => {
     const uId = `user_${Math.floor(1000 + Math.random() * 9000)}`;
@@ -884,6 +1012,18 @@ if (btnPrevChat && btnPrevFollow && btnPrevShare && btnPrevGift && btnPrevSubscr
       type = 'subscribe';
     } else if (activePreviewMode === 'join') {
       type = 'join';
+    } else if (activePreviewMode === 'all-events') {
+      const modes = ['chat', 'follow', 'share', 'gift', 'subscribe', 'join'];
+      const randomMode = modes[Math.floor(Math.random() * modes.length)];
+      type = randomMode;
+      if (randomMode === 'chat') {
+        eventData.comment = "Contoh chat masuk di Semua Event!";
+      } else if (randomMode === 'gift') {
+        eventData.giftName = "Mawar";
+        eventData.coins = 1;
+        eventData.giftImage = "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/54c55986427d14cb8d5930e466be5211.png~tplv-obj.png";
+        eventData.giftCount = 1;
+      }
     } else if (activePreviewMode === 'gift') {
       type = 'gift';
       eventData.giftName = "Mawar";
@@ -897,6 +1037,28 @@ if (btnPrevChat && btnPrevFollow && btnPrevShare && btnPrevGift && btnPrevSubscr
       eventData.giftName = "Kopi";
       eventData.coins = 5;
       eventData.giftCount = 1;
+    }
+
+    // Direct local call in preview iframe for maximum reliability
+    if (previewIframe && previewIframe.contentWindow) {
+      try {
+        const iframeWin = previewIframe.contentWindow;
+        if (activePreviewMode === 'chat' && typeof iframeWin.appendChatMessage === 'function') {
+          iframeWin.appendChatMessage(eventData);
+        } else if (activePreviewMode === 'gift' && typeof iframeWin.handleGiftEvent === 'function') {
+          iframeWin.handleGiftEvent(eventData);
+        } else if (activePreviewMode === 'all-events') {
+          if (type === 'gift' && typeof iframeWin.handleGiftEvent === 'function') {
+            iframeWin.handleGiftEvent(eventData);
+          } else if (typeof iframeWin.enqueueAlert === 'function') {
+            iframeWin.enqueueAlert(type, eventData);
+          }
+        } else if (typeof iframeWin.enqueueAlert === 'function') {
+          iframeWin.enqueueAlert(activePreviewMode, eventData);
+        }
+      } catch (err) {
+        console.warn("Direct preview simulation failed:", err);
+      }
     }
 
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -920,6 +1082,9 @@ function syncPreviewStyle() {
   const giftStyle = document.getElementById('select-style-gift').value;
   const subscribeStyle = document.getElementById('select-style-subscribe').value;
   const joinStyle = document.getElementById('select-style-join').value;
+  const allEventsStyle = document.getElementById('select-style-all-events').value;
+  const allEventsTitleColor = document.getElementById('input-all-events-title-color').value;
+  const allEventsDescColor = document.getElementById('input-all-events-desc-color').value;
   const duration = parseInt(document.getElementById('input-alert-duration').value, 10) || 4000;
 
   try {
@@ -933,7 +1098,15 @@ function syncPreviewStyle() {
       iframeWin.settings.giftStyle = giftStyle;
       iframeWin.settings.subscribeStyle = subscribeStyle;
       iframeWin.settings.joinStyle = joinStyle;
+      iframeWin.settings.allEventsStyle = allEventsStyle;
+      iframeWin.settings.allEventsTitleColor = allEventsTitleColor;
+      iframeWin.settings.allEventsDescColor = allEventsDescColor;
       iframeWin.settings.alertDuration = duration;
+      
+      // Leaderboard settings sync
+      iframeWin.settings.leaderboardStyle = document.getElementById('select-leaderboard-style').value;
+      iframeWin.settings.leaderboardLimit = parseInt(document.getElementById('input-leaderboard-limit').value, 10) || 5;
+      iframeWin.settings.leaderboardTitle = document.getElementById('input-leaderboard-title').value;
       
       if (iframeWin.settings.rules) {
         iframeWin.settings.rules.follow = parseInt(document.getElementById('rule-follow').value, 10) || 5;
@@ -958,6 +1131,17 @@ function syncPreviewStyle() {
     if (typeof iframeWin.updateStyle === 'function') {
       iframeWin.updateStyle(chatStyle);
     }
+    
+    // Sync Leaderboard Layout
+    if (typeof iframeWin.updateSettingsUI === 'function') {
+      iframeWin.updateSettingsUI();
+    }
+    if (typeof iframeWin.renderLeaderboard === 'function') {
+      iframeWin.renderLeaderboard();
+    }
+    if (typeof iframeWin.applyCustomStyles === 'function') {
+      iframeWin.applyCustomStyles();
+    }
   } catch (err) {
     console.warn("Could not sync preview style to iframe:", err);
   }
@@ -965,13 +1149,74 @@ function syncPreviewStyle() {
 
 function setActivePreview(mode, src, button) {
   activePreviewMode = mode;
-  previewIframe.src = src;
+  
+  // Prevent reload if same src
+  const currentSrc = previewIframe.src;
+  const tempAnchor = document.createElement('a');
+  tempAnchor.href = src;
+  const targetAbsoluteUrl = tempAnchor.href;
+  
+  if (currentSrc !== targetAbsoluteUrl) {
+    previewIframe.src = src;
+  }
   
   previewButtons.forEach(btn => {
     if (btn) btn.classList.remove('active');
   });
   if (button) button.classList.add('active');
 }
+
+// Map styles selects to their preview modes and buttons for instant auto-preview on change
+window.addEventListener('DOMContentLoaded', () => {
+  const styleSelectMapping = {
+    'select-style-chat': { mode: 'chat', src: './widgets/chat.html', btn: btnPrevChat },
+    'select-style-follow': { mode: 'follow', src: './widgets/alert.html', btn: btnPrevFollow },
+    'select-style-share': { mode: 'share', src: './widgets/alert.html', btn: btnPrevShare },
+    'select-style-gift': { mode: 'gift', src: './widgets/alert.html', btn: btnPrevGift },
+    'select-style-subscribe': { mode: 'subscribe', src: './widgets/alert.html', btn: btnPrevSubscribe },
+    'select-style-join': { mode: 'join', src: './widgets/alert.html', btn: btnPrevJoin },
+    'select-style-all-events': { mode: 'all-events', src: './widgets/alert.html', btn: btnPrevAllEvents },
+    'select-leaderboard-style': { mode: 'leaderboard', src: './widgets/leaderboard.html', btn: btnPrevLeaderboard }
+  };
+
+  Object.entries(styleSelectMapping).forEach(([selectId, config]) => {
+    const el = document.getElementById(selectId);
+    if (el) {
+      el.addEventListener('change', () => {
+        if (config.btn && previewIframe) {
+          // 1. Set active preview
+          setActivePreview(config.mode, config.src, config.btn);
+          
+          // 2. Trigger simulation
+          const triggerSim = () => {
+            syncPreviewStyle();
+            if (btnTriggerPreviewSim) {
+              btnTriggerPreviewSim.click();
+            }
+          };
+
+          // If iframe is already on target source, trigger immediately.
+          // Otherwise wait for load.
+          const currentSrc = previewIframe.src;
+          const tempAnchor = document.createElement('a');
+          tempAnchor.href = config.src;
+          const targetAbsoluteUrl = tempAnchor.href;
+
+          if (currentSrc === targetAbsoluteUrl) {
+            setTimeout(triggerSim, 100);
+          } else {
+            const onLoad = () => {
+              previewIframe.removeEventListener('load', onLoad);
+              setTimeout(triggerSim, 300); // 300ms is safe for WS handshakes in iframe
+            };
+            previewIframe.addEventListener('load', onLoad);
+          }
+        }
+      });
+    }
+  });
+});
+
 
 // Gift Combo Simulator - send 5 rapid gifts of same type
 const btnSimGiftCombo = document.getElementById('btn-sim-gift-combo');
@@ -1018,5 +1263,3 @@ window.addEventListener('DOMContentLoaded', () => {
   loadCustomSounds();
   initWebSocket();
 });
-
-

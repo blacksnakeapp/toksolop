@@ -21,7 +21,8 @@ try {
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const PORT = process.env.PORT || 3000;
 
@@ -30,6 +31,7 @@ const isPackaged = typeof process.pkg !== 'undefined';
 const localDir = isPackaged ? path.dirname(process.execPath) : __dirname;
 const configPath = path.join(localDir, 'config.json');
 const soundsDir = path.join(localDir, 'custom_sounds');
+const soundsDirAlternative = path.join(localDir, 'custom_sound');
 
 // Ensure custom_sounds directory exists
 if (!fs.existsSync(soundsDir)) {
@@ -45,8 +47,9 @@ if (!fs.existsSync(soundsDir)) {
 // For pkg, __dirname points to the virtual filesystem inside the exe
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve custom sound files next to the exe
+// Serve custom sound files next to the exe (support both custom_sounds and custom_sound folders)
 app.use('/sounds/custom', express.static(soundsDir));
+app.use('/sounds/custom', express.static(soundsDirAlternative));
 
 // Initial default configuration
 const defaultSettings = {
@@ -65,6 +68,7 @@ const defaultSettings = {
   leaderboardLimit: 5,
   leaderboardStyle: "1",
   leaderboardTitle: "TOP DONATOR",
+  chatTtsActive: false,
 
   // Chat Overlay Typography
   chatMaxChars: 150,
@@ -84,6 +88,9 @@ const defaultSettings = {
   subscribeDescColor: "#cccccc",
   joinTitleColor: "#ffffff",
   joinDescColor: "#cccccc",
+  allEventsStyle: "1",
+  allEventsTitleColor: "#ffffff",
+  allEventsDescColor: "#e0e0e0",
 
   // Goal Overlay Typography
   goalFontColor: "#ffffff",
@@ -114,6 +121,7 @@ const defaultSettings = {
     gift: "synth_coin",
     subscribe: "synth_levelup",
     join: "synth_ding",
+    chat: "none",
     custom1: "synth_horn",
     custom2: "synth_clapping",
     custom3: "synth_bell",
@@ -126,7 +134,8 @@ let settings = { ...defaultSettings };
 if (fs.existsSync(configPath)) {
   try {
     const rawData = fs.readFileSync(configPath, 'utf8');
-    settings = JSON.parse(rawData);
+    const parsed = JSON.parse(rawData);
+    settings = { ...defaultSettings, ...parsed };
     console.log("Settings loaded successfully.");
   } catch (e) {
     console.warn("Failed to parse config.json, using defaults.");
@@ -224,16 +233,58 @@ app.post('/api/settings', (req, res) => {
 });
 
 app.get('/api/sounds', (req, res) => {
-  // Read custom sounds dir
-  fs.readdir(soundsDir, (err, files) => {
-    if (err) {
-      return res.json([]);
-    }
-    const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.mp4'];
-    const soundFiles = files.filter(file => {
-      return audioExtensions.includes(path.extname(file).toLowerCase());
+  const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.mp4'];
+  const soundFiles = new Set();
+
+  const readDirPromise = (dir) => {
+    return new Promise((resolve) => {
+      if (!fs.existsSync(dir)) return resolve();
+      fs.readdir(dir, (err, files) => {
+        if (!err && files) {
+          files.forEach(file => {
+            if (audioExtensions.includes(path.extname(file).toLowerCase())) {
+              soundFiles.add(file);
+            }
+          });
+        }
+        resolve();
+      });
     });
-    res.json(soundFiles);
+  };
+
+  Promise.all([
+    readDirPromise(soundsDir),
+    readDirPromise(soundsDirAlternative)
+  ]).then(() => {
+    res.json(Array.from(soundFiles));
+  });
+});
+
+app.post('/api/sounds/upload', (req, res) => {
+  const { filename, data } = req.body;
+  if (!filename || !data) {
+    return res.status(400).json({ error: "Missing filename or data." });
+  }
+
+  // Validate extension
+  const ext = path.extname(filename).toLowerCase();
+  const allowedExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.mp4'];
+  if (!allowedExtensions.includes(ext)) {
+    return res.status(400).json({ error: "Invalid audio file type. Only .mp3, .wav, .ogg, .m4a, .mp4 are allowed." });
+  }
+
+  // Sanitize filename to prevent path traversal
+  const safeFilename = path.basename(filename);
+  const targetPath = path.join(soundsDir, safeFilename);
+
+  // Write base64 buffer to file
+  fs.writeFile(targetPath, Buffer.from(data, 'base64'), (err) => {
+    if (err) {
+      console.error("Upload save error:", err);
+      return res.status(500).json({ error: "Failed to save the audio file." });
+    }
+    console.log(`Saved uploaded sound: ${safeFilename} to ${targetPath}`);
+    res.json({ success: true, filename: safeFilename });
   });
 });
 
@@ -500,9 +551,18 @@ function disconnectTikTok() {
   broadcast({ event: 'tiktokStatus', data: { status: 'disconnected' } });
 }
 
+let idleTimeout = null;
+const IDLE_SHUTDOWN_MS = 5000;
+
 // WebSocket Message Handlers
 wss.on('connection', ws => {
   console.log("WS Client connected.");
+  
+  if (idleTimeout) {
+    clearTimeout(idleTimeout);
+    idleTimeout = null;
+    console.log("Idle shutdown aborted. New client connected.");
+  }
   
   // Send current settings, stats & leaderboard to newly connected widget/dock
   ws.send(JSON.stringify({ event: 'settings', data: settings }));
@@ -601,6 +661,14 @@ wss.on('connection', ws => {
 
   ws.on('close', () => {
     console.log("WS Client disconnected.");
+    if (wss.clients.size === 0) {
+      console.log(`No connected clients. Backend will auto-shutdown in ${IDLE_SHUTDOWN_MS / 1000}s to free CPU...`);
+      idleTimeout = setTimeout(() => {
+        console.log("Idle timeout reached. Shutting down completely.");
+        disconnectTikTok();
+        process.exit(0);
+      }, IDLE_SHUTDOWN_MS);
+    }
   });
 });
 

@@ -1,6 +1,6 @@
 {
   "tiktokUsername": "papapshobbies",
-  "chatStyle": "1",
+  "chatStyle": "8",
   "alertStyle": "1",
   "followStyle": "1",
   "shareStyle": "1",
@@ -29,6 +29,9 @@
   "subscribeDescColor": "#cccccc",
   "joinTitleColor": "#ffffff",
   "joinDescColor": "#cccccc",
+  "allEventsStyle": "1",
+  "allEventsTitleColor": "#ffffff",
+  "allEventsDescColor": "#e0e0e0",
   "goalFontColor": "#ffffff",
   "subathonFontColor": "#ffffff",
   "leaderboardFontColor": "#ffffff",
@@ -42,7 +45,7 @@
   },
   "goals": {
     "target": 1000,
-    "current": 12,
+    "current": 13,
     "text": "Target Upgrade PC"
   },
   "soundboard": {
@@ -51,9 +54,8 @@
     "gift": "synth_coin",
     "subscribe": "synth_levelup",
     "join": "synth_ding",
+    "chat": "synth_ding",
     "custom1": "synth_horn",
-    "custom2": "synth_clapping",
-    "custom3": "synth_bell",
-    "custom4": "synth_error"
+    "custom2": "synth_clapping"
   }
 }

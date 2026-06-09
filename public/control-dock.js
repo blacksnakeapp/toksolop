@@ -24,12 +24,12 @@ function initWebSocket() {
   ws.onopen = () => {
     addFeedItem({ type: 'system', content: '[System] Terhubung ke server.' });
   };
-  
+
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
-    
     switch (payload.event) {
       case 'settings':
+      case 'settingsUpdated':
         currentUsername = payload.data.tiktokUsername || "";
         if (connectionStatus === 'disconnected') {
           inputUsername.value = currentUsername;
@@ -96,12 +96,32 @@ function initWebSocket() {
         break;
         
       case 'like':
-        if (payload.data.likeCount >= 10) {
-          addFeedItem({
-            type: 'system',
-            avatar: payload.data.profilePictureUrl,
-            content: `❤️ @${payload.data.uniqueId} menyukai stream (+${payload.data.likeCount})`
-          });
+        {
+          const uId = payload.data.uniqueId;
+          const currentCount = payload.data.likeCount || 1;
+          
+          if (!window.userLikesData) {
+            window.userLikesData = {};
+          }
+          window.userLikesData[uId] = (window.userLikesData[uId] || 0) + currentCount;
+          const totalUserLikes = window.userLikesData[uId];
+
+          let existingLikeElement = activityFeed.querySelector(`[data-user-like="${uId}"]`);
+          if (existingLikeElement) {
+            const msgDiv = existingLikeElement.querySelector('.msg');
+            if (msgDiv) {
+              msgDiv.innerHTML = `❤️ <strong>@${uId}</strong> menyukai stream (Total ${totalUserLikes} Likes)`;
+            }
+            activityFeed.appendChild(existingLikeElement);
+            activityFeed.scrollTop = activityFeed.scrollHeight;
+          } else {
+            addFeedItem({
+              type: 'system',
+              avatar: payload.data.profilePictureUrl,
+              content: `❤️ <strong>@${uId}</strong> menyukai stream (Total ${totalUserLikes} Likes)`,
+              userLikeId: uId
+            });
+          }
         }
         break;
     }
@@ -150,6 +170,9 @@ function updateConnectionUI(statusData) {
 function addFeedItem(item) {
   const div = document.createElement('div');
   div.className = `feed-item ${item.type}`;
+  if (item.userLikeId) {
+    div.setAttribute('data-user-like', item.userLikeId);
+  }
   
   // Avatar
   if (item.avatar) {
@@ -248,6 +271,7 @@ function setupCollapsible(sectionId, headerId) {
 }
 setupCollapsible('sec-connection', 'header-connection');
 setupCollapsible('sec-simulator', 'header-simulator');
+
 
 // Start WebSocket
 initWebSocket();

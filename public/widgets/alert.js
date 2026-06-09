@@ -160,29 +160,76 @@ let settings = {
   shareStyle: "1",
   giftStyle: "1",
   subscribeStyle: "1",
+  allEventsStyle: "1",
   alertDuration: 4000,
   alertVolume: 0.5,
   soundboard: {}
 };
+window.settings = settings;
 
 const alertQueue = [];
 let isAlertActive = false;
 let activeAlert = null; // Stores current active alert details
 const alertContainer = document.getElementById('alert-container');
+const activeAudios = [];
+
+// Parse allowed types from URL query params (e.g. ?types=follow,share)
+const urlParams = new URLSearchParams(window.location.search);
+const typesParam = urlParams.get('types');
+let allowedTypes = null;
+let isAllEventsWidget = false;
+
+if (typesParam) {
+  allowedTypes = typesParam.split(',').map(t => t.trim().toLowerCase());
+  if (allowedTypes.length > 1) {
+    isAllEventsWidget = true;
+  }
+} else {
+  isAllEventsWidget = true;
+  // By default, general alert/all-events widget should NOT handle chat comments as popups
+  allowedTypes = ['follow', 'share', 'gift', 'subscribe', 'join'];
+}
+
+function clearAllAlerts() {
+  alertQueue.length = 0;
+  if (activeAlert) {
+    clearTimeout(activeAlert.timeoutExit);
+    clearTimeout(activeAlert.timeoutRemove);
+    if (activeAlert.card) {
+      activeAlert.card.remove();
+    }
+    activeAlert = null;
+  }
+  
+  // Clear Carousel Queue
+  carouselQueue.length = 0;
+  isCarouselActive = false;
+  clearTimeout(carouselTimeout);
+  if (carouselCurrentStyleId && alertContainer.classList.contains(`nb-container-style-${carouselCurrentStyleId}`)) {
+    alertContainer.className = '';
+    carouselNodes = [];
+    carouselCurrentIndex = -1;
+    carouselCurrentStyleId = null;
+  }
+
+  alertContainer.innerHTML = '';
+  isAlertActive = false;
+
+  // Hentikan semua audio yang sedang diputar
+  activeAudios.forEach(audio => {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+    } catch (e) {}
+  });
+  activeAudios.length = 0;
+}
 
 function initWebSocket() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}`;
   
   ws = new WebSocket(wsUrl);
-  
-  // Parse allowed types from URL query params (e.g. ?types=follow,share)
-  const urlParams = new URLSearchParams(window.location.search);
-  const typesParam = urlParams.get('types');
-  let allowedTypes = null;
-  if (typesParam) {
-    allowedTypes = typesParam.split(',').map(t => t.trim().toLowerCase());
-  }
   
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
@@ -191,6 +238,17 @@ function initWebSocket() {
       case 'settings':
       case 'settingsUpdated':
         settings = { ...settings, ...payload.data };
+        window.settings = settings;
+        break;
+        
+      case 'tiktokStatus':
+        if (payload.data && payload.data.status === 'disconnected') {
+          clearAllAlerts();
+        }
+        break;
+
+      case 'clearOverlayQueue':
+        clearAllAlerts();
         break;
         
       case 'follow':
@@ -222,10 +280,15 @@ function initWebSocket() {
           enqueueAlert('join', payload.data);
         }
         break;
+
+      case 'chat':
+        if (!allowedTypes || allowedTypes.includes('chat')) {
+          enqueueAlert('chat', payload.data);
+        }
+        break;
         
       case 'playSound':
-        // Direct sound trigger command from client/docks
-        const key = payload.data; // e.g. "sb-follow", "sb-custom1"
+        const key = payload.data;
         let soundSource = "none";
         
         if (key === 'sb-follow') soundSource = settings.soundboard.follow;
@@ -273,6 +336,13 @@ function handleGiftEvent(data) {
       activeAlert.comboEl.classList.remove('pulse-combo-anim');
       void activeAlert.comboEl.offsetWidth; // Force DOM reflow
       activeAlert.comboEl.classList.add('pulse-combo-anim');
+    }
+
+    // Shake the entire box card during combo updates
+    if (activeAlert.card) {
+      activeAlert.card.classList.remove('shake-vibe-active');
+      void activeAlert.card.offsetWidth; // Force DOM reflow
+      activeAlert.card.classList.add('shake-vibe-active');
     }
     
     // Play alert sound again
@@ -327,6 +397,14 @@ function handleGiftEvent(data) {
 
 // Push to alert queue
 function enqueueAlert(type, data) {
+  if (isAllEventsWidget) {
+    const styleId = parseInt(settings.allEventsStyle || "1", 10);
+    if (styleId >= 6 && styleId <= 8) {
+      enqueueCarousel(type, data, styleId);
+      return;
+    }
+  }
+
   alertQueue.push({ type, data });
   processQueue();
 }
@@ -340,15 +418,36 @@ function processQueue() {
   displayAlert(currentAlert.type, currentAlert.data);
 }
 
+// Helper to get safe image URLs (handles TikTok CORS proxying and offline fallback)
+function getSafeImageUrl(url, isAvatar = false) {
+  if (!url) {
+    return isAvatar ? 'https://api.dicebear.com/7.x/adventurer/svg?seed=default' : '';
+  }
+  // Convert TikTok CDN to CORS-friendly proxy to prevent HTTP 403 blocks in WebView2/OBS
+  if (url.includes('tiktokcdn.com')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
+  }
+  // Fallback for i.pravatar.cc which is highly unstable/blocked in some regions
+  if (url.includes('pravatar.cc')) {
+    const seed = url.split('u=')[1] || Math.floor(Math.random() * 1000);
+    return `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
+  }
+  return url;
+}
+
 // Render the alert HTML structure and animate
 function displayAlert(type, data) {
-  // Determine style (1 to 10)
+  // Determine style (1 to 10 for individual alerts, ae-1 to ae-5 for all events)
   let styleId = settings.alertStyle || "1";
-  if (type === 'follow') styleId = settings.followStyle || styleId;
-  else if (type === 'share') styleId = settings.shareStyle || styleId;
-  else if (type === 'gift') styleId = settings.giftStyle || styleId;
-  else if (type === 'subscribe') styleId = settings.subscribeStyle || styleId;
-  else if (type === 'join') styleId = settings.joinStyle || styleId;
+  if (isAllEventsWidget) {
+    styleId = "ae-" + (settings.allEventsStyle || "1");
+  } else {
+    if (type === 'follow') styleId = settings.followStyle || styleId;
+    else if (type === 'share') styleId = settings.shareStyle || styleId;
+    else if (type === 'gift') styleId = settings.giftStyle || styleId;
+    else if (type === 'subscribe') styleId = settings.subscribeStyle || styleId;
+    else if (type === 'join') styleId = settings.joinStyle || styleId;
+  }
 
   // Single unit coins calculation
   const singleCoins = type === 'gift' ? (data.coins / data.giftCount) : 0;
@@ -367,28 +466,61 @@ function displayAlert(type, data) {
     description = "Baru bergabung ke live stream!";
   } else if (type === 'gift') {
     description = `Mengirim ${data.giftName} x${data.giftCount} (${data.coins} Koin)`;
+  } else if (type === 'chat') {
+    description = data.comment || "";
   }
 
   // Create Element
   const card = document.createElement('div');
-  card.className = `alert-card style-${styleId} style-${styleId}-enter`;
+  let eventClass = '';
+  if (type === 'chat') eventClass = 'chat-event-card';
+  else if (type === 'share') eventClass = 'share-event-card';
+  else if (type === 'subscribe') eventClass = 'subscribe-event-card';
+  else if (type === 'follow') eventClass = 'follow-event-card';
+  else if (type === 'gift') eventClass = 'gift-event-card shake-vibe-active';
+  
+  card.className = `alert-card style-${styleId} style-${styleId}-enter ${eventClass}`;
   
   // Set Profile Avatar
   const avatar = document.createElement('img');
-  avatar.src = data.profilePictureUrl || 'https://i.pravatar.cc/100';
+  avatar.src = getSafeImageUrl(data.profilePictureUrl, true);
   avatar.className = 'alert-avatar animate-avatar';
-  avatar.onerror = () => { avatar.src = 'https://i.pravatar.cc/100'; };
+  avatar.onerror = () => { avatar.src = 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (data.uniqueId || 'viewer'); };
   card.appendChild(avatar);
+
+  // Append Sweetener Icon if follow, share, subscribe, or chat
+  if (type === 'follow' || type === 'share' || type === 'subscribe' || type === 'chat') {
+    const pemanisIcon = document.createElement('div');
+    pemanisIcon.className = 'pemanis-icon';
+    if (type === 'follow') {
+      pemanisIcon.textContent = '🔔';
+      pemanisIcon.classList.add('bell-icon');
+    } else if (type === 'share') {
+      pemanisIcon.textContent = '🔗';
+      pemanisIcon.classList.add('share-icon');
+    } else if (type === 'subscribe') {
+      pemanisIcon.textContent = '👑';
+      pemanisIcon.classList.add('crown-icon');
+    } else if (type === 'chat') {
+      pemanisIcon.textContent = '💬';
+      pemanisIcon.classList.add('chat-icon');
+    }
+    card.appendChild(pemanisIcon);
+  }
 
   // If gift, append the gift image
   if (type === 'gift' && data.giftImage) {
     const giftImg = document.createElement('img');
-    giftImg.src = data.giftImage;
+    giftImg.src = getSafeImageUrl(data.giftImage);
     giftImg.className = 'animate-gift';
     giftImg.style.width = '60px';
     giftImg.style.height = '60px';
     giftImg.style.marginLeft = 'auto';
     giftImg.style.order = '3';
+    giftImg.onerror = () => {
+      // Fallback to a beautiful gift icon if the image fails to load
+      giftImg.src = 'https://cdn-icons-png.flaticon.com/128/833/833472.png';
+    };
     card.appendChild(giftImg);
   }
 
@@ -404,42 +536,92 @@ function displayAlert(type, data) {
   descEl.className = 'alert-description animate-desc';
   descEl.textContent = description;
 
-  // Apply individual alert type colors dynamically
+  // Tentukan warna judul dan deskripsi secara dinamis jika diubah oleh user
   let titleColor = '#ffffff';
   let descColor = '#cccccc';
-  if (type === 'follow') {
-    titleColor = settings.followTitleColor || '#ffffff';
-    descColor = settings.followDescColor || '#cccccc';
+  let isCustomTitleColor = false;
+  let isCustomDescColor = false;
+
+  if (isAllEventsWidget) {
+    if (settings.allEventsTitleColor && settings.allEventsTitleColor !== '#ffffff') {
+      titleColor = settings.allEventsTitleColor;
+      isCustomTitleColor = true;
+    }
+    if (settings.allEventsDescColor && settings.allEventsDescColor !== '#e0e0e0') {
+      descColor = settings.allEventsDescColor;
+      isCustomDescColor = true;
+    }
+  } else if (type === 'follow') {
+    if (settings.followTitleColor && settings.followTitleColor !== '#ffffff') {
+      titleColor = settings.followTitleColor;
+      isCustomTitleColor = true;
+    }
+    if (settings.followDescColor && settings.followDescColor !== '#cccccc') {
+      descColor = settings.followDescColor;
+      isCustomDescColor = true;
+    }
   } else if (type === 'share') {
-    titleColor = settings.shareTitleColor || '#ffffff';
-    descColor = settings.shareDescColor || '#cccccc';
+    if (settings.shareTitleColor && settings.shareTitleColor !== '#ffffff') {
+      titleColor = settings.shareTitleColor;
+      isCustomTitleColor = true;
+    }
+    if (settings.shareDescColor && settings.shareDescColor !== '#cccccc') {
+      descColor = settings.shareDescColor;
+      isCustomDescColor = true;
+    }
   } else if (type === 'gift') {
-    titleColor = settings.giftTitleColor || '#ffffff';
-    descColor = settings.giftDescColor || '#cccccc';
+    if (settings.giftTitleColor && settings.giftTitleColor !== '#ffffff') {
+      titleColor = settings.giftTitleColor;
+      isCustomTitleColor = true;
+    }
+    if (settings.giftDescColor && settings.giftDescColor !== '#cccccc') {
+      descColor = settings.giftDescColor;
+      isCustomDescColor = true;
+    }
   } else if (type === 'subscribe') {
-    titleColor = settings.subscribeTitleColor || '#ffffff';
-    descColor = settings.subscribeDescColor || '#cccccc';
+    if (settings.subscribeTitleColor && settings.subscribeTitleColor !== '#ffffff') {
+      titleColor = settings.subscribeTitleColor;
+      isCustomTitleColor = true;
+    }
+    if (settings.subscribeDescColor && settings.subscribeDescColor !== '#cccccc') {
+      descColor = settings.subscribeDescColor;
+      isCustomDescColor = true;
+    }
   } else if (type === 'join') {
-    titleColor = settings.joinTitleColor || '#ffffff';
-    descColor = settings.joinDescColor || '#cccccc';
+    if (settings.joinTitleColor && settings.joinTitleColor !== '#ffffff') {
+      titleColor = settings.joinTitleColor;
+      isCustomTitleColor = true;
+    }
+    if (settings.joinDescColor && settings.joinDescColor !== '#cccccc') {
+      descColor = settings.joinDescColor;
+      isCustomDescColor = true;
+    }
   }
 
-  // Style 5 & 6 use -webkit-text-fill-color: transparent for gradient/shimmer
-  // effect on .alert-title. Inline style.color alone does NOT override -webkit-text-fill-color,
-  // causing the title text to be invisible. We must explicitly set -webkit-text-fill-color too.
-  const isGradientStyle = (styleId === '5' || styleId === '6');
+  // Terapkan warna judul
+  const isGradientStyle = (styleId === '5' || styleId === 5 || styleId === '6' || styleId === 6);
   if (isGradientStyle) {
-    // Override gradient with plain color so text is always visible
-    titleEl.style.setProperty('-webkit-background-clip', 'unset');
-    titleEl.style.setProperty('background', 'none');
-    titleEl.style.setProperty('-webkit-text-fill-color', titleColor);
-    titleEl.style.setProperty('animation', 'none'); // remove shimmer/holo-text anim
+    if (isCustomTitleColor) {
+      // Jika user mengkustomisasi warna, timpa gradien dengan warna solid kustom
+      titleEl.style.setProperty('-webkit-background-clip', 'unset');
+      titleEl.style.setProperty('background', 'none');
+      titleEl.style.setProperty('-webkit-text-fill-color', titleColor);
+      titleEl.style.color = titleColor;
+      titleEl.style.setProperty('animation', 'none');
+    }
+    // Jika menggunakan default, biarkan CSS menangani gradien emas/pelangi bawaan tema
   } else {
     titleEl.style.setProperty('-webkit-text-fill-color', titleColor);
+    titleEl.style.color = titleColor;
   }
-  titleEl.style.color = titleColor;
-  descEl.style.setProperty('-webkit-text-fill-color', descColor);
-  descEl.style.color = descColor;
+
+  // Terapkan warna deskripsi
+  if (isCustomDescColor) {
+    descEl.style.setProperty('-webkit-text-fill-color', descColor);
+    descEl.style.color = descColor;
+  } else {
+    // Biarkan CSS bawaan tema menangani warna deskripsi jika tidak dikustomisasi
+  }
   
   details.appendChild(titleEl);
   details.appendChild(descEl);
@@ -464,6 +646,7 @@ function displayAlert(type, data) {
     else if (type === 'gift') soundSource = settings.soundboard.gift;
     else if (type === 'subscribe') soundSource = settings.soundboard.subscribe;
     else if (type === 'join') soundSource = settings.soundboard.join;
+    // NOTE: chat sound is intentionally NOT played here - handled exclusively by chat.js overlay
   }
   playAudioSource(soundSource);
 
@@ -507,23 +690,302 @@ function displayAlert(type, data) {
   };
 }
 
-// Play sound helper
+// Play sound helper — with anti-spam guard: skip if a sound is already playing
+let _soundPlaying = false;
 function playAudioSource(src) {
   if (!src || src === 'none') return;
+  if (_soundPlaying) return; // prevent overlapping sounds
   
+  _soundPlaying = true;
   const vol = settings.alertVolume !== undefined ? settings.alertVolume : 0.5;
+
+  const unlockSound = () => { _soundPlaying = false; };
 
   if (src.startsWith('synth_')) {
     playSynthSound(src, vol);
+    // synth sounds are short, unlock after 400ms
+    setTimeout(unlockSound, 400);
   } else {
     const audio = new Audio(src);
     audio.volume = vol;
+    activeAudios.push(audio);
+    audio.addEventListener('ended', () => {
+      const index = activeAudios.indexOf(audio);
+      if (index > -1) activeAudios.splice(index, 1);
+      unlockSound();
+    });
+    audio.addEventListener('error', unlockSound);
     audio.play().catch(err => {
       console.warn("Failed to play alert sound file:", err.message);
+      const index = activeAudios.indexOf(audio);
+      if (index > -1) activeAudios.splice(index, 1);
+      unlockSound();
     });
   }
 }
 
+
+// Display completely fresh non-blocking alerts (Styles 6 to 10)
+function displayNonBlockingAlert(type, data, styleId) {
+  let title = data.nickname || `@${data.uniqueId}`;
+  let description = "";
+  
+  if (type === 'follow') description = "Baru saja mengikuti host!";
+  else if (type === 'share') description = "Membagikan live stream ini!";
+  else if (type === 'subscribe') description = "Baru saja berlangganan (Subscribe)!";
+  else if (type === 'join') description = "Baru bergabung ke live stream!";
+  else if (type === 'gift') description = `Mengirim ${data.giftName} x${data.giftCount} (${data.coins} Koin)`;
+  else if (type === 'chat') description = data.comment || "";
+
+  // Play sound
+  let soundSource = "none";
+  if (settings.soundboard) {
+    if (type === 'follow') soundSource = settings.soundboard.follow;
+    else if (type === 'share') soundSource = settings.soundboard.share;
+    else if (type === 'gift') soundSource = settings.soundboard.gift;
+    else if (type === 'subscribe') soundSource = settings.soundboard.subscribe;
+    else if (type === 'join') soundSource = settings.soundboard.join;
+    // NOTE: chat sound intentionally excluded here
+  }
+  playAudioSource(soundSource);
+
+  const fullStyleId = "ae-" + styleId;
+  const duration = settings.alertDuration || 4000;
+  
+  const card = document.createElement('div');
+  card.className = `nb-card style-${fullStyleId}`;
+  
+  // Create content based on style
+  if (styleId === 7) {
+    // Top-Down Glass Feed
+    if (!alertContainer.classList.contains('nb-container-style-7')) {
+       alertContainer.className = 'nb-container-style-7';
+       alertContainer.innerHTML = '';
+    }
+    card.innerHTML = `<img src="${getSafeImageUrl(data.profilePictureUrl, true)}" class="nb-avatar"> <span><strong>${title}</strong><br>${description}</span>`;
+    
+    // prepend to appear at the top
+    alertContainer.insertBefore(card, alertContainer.firstChild);
+    
+    requestAnimationFrame(() => {
+      card.classList.add('nb-enter');
+    });
+    
+    const children = Array.from(alertContainer.children);
+    if (children.length > 5) {
+      children[children.length - 1].remove();
+    }
+  } else if (styleId === 8) {
+    // Floating Bubbles
+    alertContainer.className = 'nb-container-style-8';
+    card.innerHTML = `<img src="${getSafeImageUrl(data.profilePictureUrl, true)}" class="nb-avatar"> <div class="nb-text-col"><strong>${title}</strong><br><span>${description}</span></div>`;
+    card.style.left = Math.floor(Math.random() * 80) + 10 + '%';
+    alertContainer.appendChild(card);
+  } else if (styleId === 9) {
+    // Minimalist Toast Stack
+    if (!alertContainer.classList.contains('nb-container-style-9')) {
+       alertContainer.className = 'nb-container-style-9';
+    }
+    card.innerHTML = `<div class="nb-toast-content"><img src="${getSafeImageUrl(data.profilePictureUrl, true)}" class="nb-avatar"> <div><strong>${title}</strong><br>${description}</div></div>`;
+    alertContainer.appendChild(card);
+    
+    requestAnimationFrame(() => {
+      card.classList.add('nb-enter');
+    });
+    
+    const children = Array.from(alertContainer.children);
+    if (children.length > 4) {
+      children[0].remove();
+    }
+  } else if (styleId === 10) {
+    // 3D Chaos Cloud
+    alertContainer.className = 'nb-container-style-10';
+    card.innerHTML = `<img src="${getSafeImageUrl(data.profilePictureUrl, true)}" class="nb-avatar"> <strong>${title}</strong><br><span style="font-size:10px">${description}</span>`;
+    const randomX = Math.floor(Math.random() * 400) - 200;
+    const randomY = Math.floor(Math.random() * 200) - 100;
+    const randomZ = Math.floor(Math.random() * 40) - 20;
+    card.style.transform = `translate(${randomX}px, ${randomY}px) rotateZ(${randomZ}deg) scale(0.1)`;
+    alertContainer.appendChild(card);
+    
+    requestAnimationFrame(() => {
+      card.style.transform = `translate(${randomX}px, ${randomY}px) rotateZ(${randomZ}deg) scale(1)`;
+      card.style.opacity = '1';
+    });
+  }
+  
+  // Set self-destruct timeout
+  setTimeout(() => {
+    card.classList.add('nb-exit');
+    if (styleId === 6 && window.style6Items) {
+      window.style6Items = window.style6Items.filter(item => item !== card);
+    }
+    setTimeout(() => {
+      card.remove();
+      if (alertContainer.children.length === 0) {
+         alertContainer.className = '';
+      }
+    }, 800); // Wait for exit animation
+  }, duration);
+}
+
+let carouselQueue = [];
+let isCarouselActive = false;
+let carouselTimeout = null;
+let carouselCurrentIndex = -1;
+let carouselNodes = [];
+let carouselCurrentStyleId = null;
+
+function enqueueCarousel(type, data, styleId) {
+  carouselQueue.push({ type, data, styleId });
+  if (!isCarouselActive) {
+    processCarouselQueue();
+  }
+}
+
+function processCarouselQueue() {
+  if (carouselQueue.length === 0) {
+    isCarouselActive = false;
+    carouselTimeout = setTimeout(() => {
+      if (carouselCurrentStyleId && alertContainer.classList.contains(`nb-container-style-${carouselCurrentStyleId}`)) {
+        alertContainer.innerHTML = '';
+        alertContainer.className = '';
+        carouselNodes = [];
+        carouselCurrentIndex = -1;
+        carouselCurrentStyleId = null;
+      }
+    }, settings.alertDuration || 4000);
+    return;
+  }
+
+  isCarouselActive = true;
+  clearTimeout(carouselTimeout);
+
+  const current = carouselQueue.shift();
+  const styleId = current.styleId;
+
+  if (carouselCurrentStyleId !== styleId || !alertContainer.classList.contains(`nb-container-style-${styleId}`)) {
+    alertContainer.className = `nb-container-style-${styleId}`;
+    alertContainer.innerHTML = '';
+    carouselNodes = [];
+    carouselCurrentIndex = -1;
+    carouselCurrentStyleId = styleId;
+  }
+
+  carouselCurrentIndex++;
+
+  let title = current.data.nickname || `@${current.data.uniqueId}`;
+  let description = "";
+  if (current.type === 'follow') description = "Mengikuti host!";
+  else if (current.type === 'share') description = "Membagikan live!";
+  else if (current.type === 'subscribe') description = "Berlangganan!";
+  else if (current.type === 'join') description = "Bergabung!";
+  else if (current.type === 'gift') description = `${current.data.giftName} x${current.data.giftCount}`;
+  else if (current.type === 'chat') description = current.data.comment || "";
+
+  let soundSource = "none";
+  if (settings.soundboard) {
+    if (current.type === 'follow') soundSource = settings.soundboard.follow;
+    else if (current.type === 'share') soundSource = settings.soundboard.share;
+    else if (current.type === 'gift') soundSource = settings.soundboard.gift;
+    else if (current.type === 'subscribe') soundSource = settings.soundboard.subscribe;
+    else if (current.type === 'join') soundSource = settings.soundboard.join;
+    // NOTE: chat sound intentionally excluded here
+  }
+  playAudioSource(soundSource);
+
+  const nodeIndex = carouselCurrentIndex % 5;
+  let card = carouselNodes[nodeIndex];
+  if (!card) {
+    card = document.createElement('div');
+    card.className = `nb-card style-ae-${styleId}`;
+    alertContainer.appendChild(card);
+    carouselNodes[nodeIndex] = card;
+  }
+
+  card.style.transition = 'none';
+  card.innerHTML = `<img src="${getSafeImageUrl(current.data.profilePictureUrl, true)}" class="nb-avatar"> <span class="nb-text"><strong>${title}</strong> ${description}</span>`;
+  
+  if (styleId === 6) card.style.transform = `translateY(150px) scale(0.5)`;
+  else if (styleId === 7) card.style.transform = `translateY(-150px) scale(0.5)`; // comes from top
+  else if (styleId === 8) card.style.transform = `translateX(800px) scale(0.5)`; // comes from right
+  
+  card.style.opacity = '0';
+  card.style.filter = 'brightness(0)';
+  
+  void card.offsetWidth;
+
+  for (let i = 0; i < 5; i++) {
+    const node = carouselNodes[i];
+    if (!node) continue;
+
+    let absIdx = carouselCurrentIndex - ((carouselCurrentIndex - i) % 5);
+    if (absIdx > carouselCurrentIndex) absIdx -= 5;
+    if (absIdx < 0) continue;
+
+    const offset = absIdx - carouselCurrentIndex; 
+    
+    node.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    let opacity = '0';
+    let zIndex = '0';
+    let filter = 'brightness(0.7)';
+    let transform = '';
+
+    if (styleId === 6) {
+      if (offset === 0) {
+        transform = `translateY(0px) scale(1)`; opacity = '1'; filter = 'brightness(1.2)'; zIndex = '10';
+        node.innerHTML = `<div class="ae-6-dot"></div>` + node.innerHTML.replace('<div class="ae-6-dot"></div>', '');
+      } else if (offset === -1) {
+        transform = `translateY(-45px) scale(0.9)`; opacity = '0.75'; zIndex = '9';
+      } else if (offset === -2) {
+        transform = `translateY(-90px) scale(0.8)`; opacity = '0.5'; zIndex = '8';
+      } else if (offset === -3 || offset === 2) {
+        transform = `translateY(90px) scale(0.8)`; opacity = '0.5'; zIndex = '8';
+      } else if (offset === -4 || offset === 1) {
+        transform = `translateY(45px) scale(0.9)`; opacity = '0.75'; zIndex = '9';
+      }
+    } else if (styleId === 7) {
+      // Reverse of Style 6
+      if (offset === 0) {
+        transform = `translateY(0px) scale(1)`; opacity = '1'; filter = 'brightness(1.2)'; zIndex = '10';
+        node.innerHTML = `<div class="ae-6-dot"></div>` + node.innerHTML.replace('<div class="ae-6-dot"></div>', '');
+      } else if (offset === -1) {
+        transform = `translateY(45px) scale(0.9)`; opacity = '0.75'; zIndex = '9';
+      } else if (offset === -2) {
+        transform = `translateY(90px) scale(0.8)`; opacity = '0.5'; zIndex = '8';
+      } else if (offset === -3 || offset === 2) {
+        transform = `translateY(-90px) scale(0.8)`; opacity = '0.5'; zIndex = '8';
+      } else if (offset === -4 || offset === 1) {
+        transform = `translateY(-45px) scale(0.9)`; opacity = '0.75'; zIndex = '9';
+      }
+    } else if (styleId === 8) {
+      // Horizontal version of Style 6 (1080px wide, modified to not overlap and have tight gaps)
+      if (offset === 0) {
+        transform = `translateX(0px) scale(1)`; opacity = '1'; filter = 'brightness(1.2)'; zIndex = '10';
+      } else if (offset === -1) {
+        transform = `translateX(-290px) scale(0.85)`; opacity = '0.75'; zIndex = '9';
+      } else if (offset === -2) {
+        transform = `translateX(-540px) scale(0.7)`; opacity = '0.5'; zIndex = '8';
+      } else if (offset === -3 || offset === 2) {
+        transform = `translateX(540px) scale(0.7)`; opacity = '0.5'; zIndex = '8';
+      } else if (offset === -4 || offset === 1) {
+        transform = `translateX(290px) scale(0.85)`; opacity = '0.75'; zIndex = '9';
+      }
+    }
+
+    node.style.transform = transform;
+    node.style.opacity = opacity;
+    node.style.filter = filter;
+    node.style.zIndex = zIndex;
+    
+    if (offset !== 0) {
+      const dot = node.querySelector('.ae-6-dot'); if(dot) dot.remove();
+    }
+  }
+
+  setTimeout(() => {
+    processCarouselQueue();
+  }, 1500);
+}
 
 // Start
 initWebSocket();

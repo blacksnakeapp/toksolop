@@ -24,14 +24,15 @@ body {
   color: var(--obs-text);
   font-family: var(--font-family);
   font-size: 11px;
-  overflow: hidden;
-  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100vh;
 }
 
 .dock-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   padding: 8px;
   gap: 8px;
 }

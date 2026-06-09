@@ -10,6 +10,7 @@ let settings = {
     subscribe: 30
   }
 };
+window.settings = settings;
 
 let localSeconds = 3600;
 let timerInterval = null;
@@ -35,6 +36,7 @@ function initWebSocket() {
         const prevSeconds = settings.subathonSeconds;
         
         settings = { ...settings, ...payload.data };
+        window.settings = settings;
         applyCustomStyles();
         
         // Sync local seconds if server sent a different value

@@ -95,13 +95,38 @@ function initWebSocket() {
         break;
         
       case 'like':
-        // Likes are heavy, let's only display like events for higher values or log occasionally
-        if (payload.data.likeCount >= 10) {
-          addFeedItem({
-            type: 'system',
-            avatar: payload.data.profilePictureUrl,
-            content: `❤️ @${payload.data.uniqueId} menyukai stream (+${payload.data.likeCount})`
-          });
+        {
+          const uId = payload.data.uniqueId;
+          const currentCount = payload.data.likeCount || 1;
+          if (!window.userLikesData) window.userLikesData = {};
+          window.userLikesData[uId] = (window.userLikesData[uId] || 0) + currentCount;
+          const totalUserLikes = window.userLikesData[uId];
+
+          let existingEl = activityFeed.querySelector(`[data-user-like="${uId}"]`);
+          if (existingEl) {
+            const c = existingEl.querySelector('.item-content');
+            if (c) c.innerHTML = `❤️ <strong>@${uId}</strong> menyukai stream (Total ${totalUserLikes} Likes)`;
+            activityFeed.appendChild(existingEl);
+            activityFeed.scrollTop = activityFeed.scrollHeight;
+          } else {
+            const div = document.createElement('div');
+            div.className = 'feed-item system';
+            div.setAttribute('data-user-like', uId);
+            if (payload.data.profilePictureUrl) {
+              const img = document.createElement('img');
+              img.src = payload.data.profilePictureUrl;
+              img.className = 'avatar-mini';
+              img.onerror = () => { img.style.display = 'none'; };
+              div.appendChild(img);
+            }
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'item-content';
+            contentDiv.innerHTML = `❤️ <strong>@${uId}</strong> menyukai stream (Total ${totalUserLikes} Likes)`;
+            div.appendChild(contentDiv);
+            activityFeed.appendChild(div);
+            while (activityFeed.children.length > 40) activityFeed.removeChild(activityFeed.firstChild);
+            activityFeed.scrollTop = activityFeed.scrollHeight;
+          }
         }
         break;
     }

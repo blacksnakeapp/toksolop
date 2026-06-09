@@ -2,3 +2,10 @@ node_modules/
 dist/
 *.log
 .DS_Store
+*.exe
+*.dll
+wrapper/bin/
+wrapper/obj/
+custom_sounds/
+video/
+Soloptik.exe

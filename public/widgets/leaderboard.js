@@ -4,6 +4,7 @@ let settings = {
   leaderboardStyle: "1",
   leaderboardTitle: "TOP DONATOR"
 };
+window.settings = settings;
 let leaderboardData = [];
 
 function initWebSocket() {
@@ -19,6 +20,7 @@ function initWebSocket() {
       case 'settings':
       case 'settingsUpdated':
         settings = { ...settings, ...payload.data };
+        window.settings = settings;
         updateSettingsUI();
         applyCustomStyles();
         renderLeaderboard();
@@ -118,3 +120,8 @@ function applyCustomStyles() {
 }
 
 initWebSocket();
+
+// Expose functions for live preview sync
+window.updateSettingsUI = updateSettingsUI;
+window.renderLeaderboard = renderLeaderboard;
+window.applyCustomStyles = applyCustomStyles;

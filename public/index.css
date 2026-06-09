@@ -971,3 +971,23 @@ body {
 
 .connection-actions { display: flex; gap: 12px; margin-top: 20px; }
 .mt-10 { margin-top: 10px; }
+
+/* Sticky Live Preview Card alignment */
+#preview-card {
+  position: sticky;
+  top: 40px;
+  align-self: start;
+  z-index: 5;
+}
+
+@media (max-width: 1200px) {
+  .main-content {
+    padding: 20px;
+  }
+  .grid-2 {
+    gap: 15px;
+  }
+  #preview-card {
+    top: 20px;
+  }
+}

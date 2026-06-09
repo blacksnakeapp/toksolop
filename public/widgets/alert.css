@@ -120,13 +120,35 @@ body {
   100% { opacity: 1; transform: scale(1) rotate(0); }
 }
 
-/* STYLE 1: Frosted Minimalist Glass */
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* STYLE 1: Frosted Minimalist Glass (Casual Chat Vibe) */
 .style-1 {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.style-1::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(0, 150, 255, 0.12), transparent 45%),
+              radial-gradient(circle at 70% 70%, rgba(142, 45, 226, 0.12), transparent 45%);
+  animation: style1-ambient 8s infinite ease-in-out alternate;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style1-ambient {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1.25); }
 }
 .style-1 .alert-avatar {
   border: 2px solid rgba(255, 255, 255, 0.3);
@@ -154,7 +176,7 @@ body {
   100% { transform: translateY(-30px) scale(0.95); opacity: 0; }
 }
 
-/* STYLE 2: Cyber Glass Neon */
+/* STYLE 2: Cyber Glass Neon (FPS/Pro Gaming Vibe) */
 .style-2 {
   background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 85, 0.05));
   backdrop-filter: blur(25px);
@@ -162,6 +184,22 @@ body {
   border: 2px solid rgba(0, 240, 255, 0.4);
   box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(255, 0, 85, 0.1);
   clip-path: polygon(0 0, 95% 0, 100% 20%, 100% 100%, 5% 100%, 0 80%);
+  position: relative;
+  overflow: hidden;
+}
+.style-2::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.35), transparent);
+  animation: style2-laser 3s infinite linear;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style2-laser {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 .style-2 .alert-avatar {
   border: 2px solid var(--neon-pink);
@@ -194,7 +232,7 @@ body {
   100% { transform: scale(0.9) skewX(10deg) translateY(-80px); opacity: 0; }
 }
 
-/* STYLE 3: Comic Pop-Art Glass */
+/* STYLE 3: Comic Pop-Art Glass (Anime Vibe) */
 .style-3 {
   background: rgba(255, 234, 0, 0.15);
   backdrop-filter: blur(20px);
@@ -202,6 +240,28 @@ body {
   border: 4px solid #000;
   box-shadow: 10px 10px 0px #000;
   border-radius: 0px;
+  position: relative;
+  overflow: hidden;
+}
+.style-3::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 234, 0, 0.08),
+    rgba(255, 234, 0, 0.08) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  animation: style3-dots 6s infinite linear;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style3-dots {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(28px, 28px); }
 }
 .style-3 .alert-avatar {
   border: 4px solid #000;
@@ -238,7 +298,7 @@ body {
   100% { transform: scale(0.2) rotate(15deg); opacity: 0; }
 }
 
-/* STYLE 4: Dark Violet Acrylic */
+/* STYLE 4: Dark Violet Acrylic (Synthwave/DJ Music Vibe) */
 .style-4 {
   background: linear-gradient(135deg, rgba(142, 45, 226, 0.12), rgba(20, 18, 30, 0.65));
   backdrop-filter: blur(30px);
@@ -246,6 +306,24 @@ body {
   border: 1.5px solid rgba(142, 45, 226, 0.4);
   box-shadow: 0 15px 35px rgba(142, 45, 226, 0.2);
   border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.style-4::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: 0;
+  width: 100%; height: 200%;
+  background: linear-gradient(0deg, transparent 24%, rgba(142, 45, 226, 0.1) 25%, rgba(142, 45, 226, 0.1) 26%, transparent 27%, transparent 74%, rgba(255, 0, 128, 0.1) 75%, rgba(255, 0, 128, 0.1) 76%, transparent 77%),
+              linear-gradient(90deg, transparent 24%, rgba(142, 45, 226, 0.1) 25%, rgba(142, 45, 226, 0.1) 26%, transparent 27%, transparent 74%, rgba(255, 0, 128, 0.1) 75%, rgba(255, 0, 128, 0.1) 76%, transparent 77%);
+  background-size: 40px 40px;
+  animation: style4-grid 10s infinite linear;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style4-grid {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
 }
 .style-4 .alert-avatar {
   border: 2.5px solid rgba(142, 45, 226, 0.6);
@@ -273,7 +351,7 @@ body {
   100% { transform: scale(0.8) translateY(-80px); opacity: 0; }
 }
 
-/* STYLE 5: Holographic Rainbow Glass */
+/* STYLE 5: Holographic Rainbow Glass (Music Rave Vibe) */
 .style-5 {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   backdrop-filter: blur(25px);
@@ -290,14 +368,28 @@ body {
   width: 300%; height: 100%;
   background: linear-gradient(90deg, 
     transparent, 
-    rgba(255, 0, 128, 0.15), 
-    rgba(0, 255, 255, 0.15), 
-    rgba(255, 255, 0, 0.15), 
+    rgba(255, 0, 128, 0.2), 
+    rgba(0, 255, 255, 0.2), 
+    rgba(255, 255, 0, 0.2), 
+    rgba(0, 255, 102, 0.2),
     transparent
   );
   transform: skewX(-20deg);
   animation: holo-sweep 4s infinite linear;
   pointer-events: none;
+}
+.style-5::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 0, 128, 0.03);
+  animation: style5-pulse 1.2s infinite ease-in-out alternate;
+  z-index: -2;
+  pointer-events: none;
+}
+@keyframes style5-pulse {
+  0% { opacity: 0.2; }
+  100% { opacity: 0.8; }
 }
 .style-5 .alert-avatar {
   border: 2px solid rgba(255, 255, 255, 0.4);
@@ -309,7 +401,7 @@ body {
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: holo-text 3s infinite linear;
+  animation: slideUpFade 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.3s forwards, holo-text 3s infinite linear;
 }
 .style-5 .alert-description {
   color: rgba(255, 255, 255, 0.85);
@@ -335,7 +427,7 @@ body {
   100% { transform: scale(0.7) rotate(-5deg); opacity: 0; }
 }
 
-/* STYLE 6: Elegant Golden Glass */
+/* STYLE 6: Elegant Golden Glass (VIP Talkshow Vibe) */
 .style-6 {
   background: linear-gradient(135deg, rgba(24, 20, 7, 0.75), rgba(48, 38, 11, 0.55));
   backdrop-filter: blur(30px);
@@ -343,6 +435,34 @@ body {
   border: 1.5px solid rgba(255, 215, 0, 0.4);
   box-shadow: 0 0 30px rgba(255, 215, 0, 0.15), inset 0 0 10px rgba(255, 215, 0, 0.1);
   border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.style-6::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.25), transparent);
+  animation: style2-laser 4s infinite ease-in-out;
+  z-index: -1;
+  pointer-events: none;
+}
+.style-6::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: radial-gradient(rgba(255, 215, 0, 0.25) 1px, transparent 1px),
+                    radial-gradient(rgba(255, 215, 0, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  animation: style6-glitter 6s infinite linear;
+  z-index: -2;
+  pointer-events: none;
+}
+@keyframes style6-glitter {
+  0% { background-position: 0 0, 10px 10px; }
+  100% { background-position: 20px 40px, 30px 50px; }
 }
 .style-6 .alert-avatar {
   border: 2px solid var(--gold-color);
@@ -355,7 +475,7 @@ body {
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer 3s infinite linear;
+  animation: slideUpFade 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.3s forwards, shimmer 3s infinite linear;
 }
 .style-6 .alert-description {
   color: #fffbdf;
@@ -376,7 +496,7 @@ body {
   100% { transform: scale(0.9) translateY(-40px); opacity: 0; }
 }
 
-/* STYLE 7: Kawaii Pastel Bubble Glass */
+/* STYLE 7: Kawaii Pastel Bubble Glass (Cozy Stream Vibe) */
 .style-7 {
   background: linear-gradient(135deg, rgba(255, 182, 193, 0.25), rgba(255, 240, 245, 0.2));
   backdrop-filter: blur(25px);
@@ -384,10 +504,27 @@ body {
   border: 3px solid rgba(255, 182, 193, 0.6);
   border-radius: 35px;
   box-shadow: 0 10px 25px rgba(255, 182, 193, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+.style-7::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 10% 80%, rgba(255, 105, 180, 0.15) 10px, transparent 15px),
+              radial-gradient(circle at 80% 20%, rgba(123, 104, 238, 0.15) 15px, transparent 20px),
+              radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.2) 8px, transparent 12px);
+  animation: style7-bubbles 5s infinite alternate ease-in-out;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style7-bubbles {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-15px) scale(1.1); }
 }
 .style-7 .alert-avatar {
   border: 3px solid rgba(255, 182, 193, 0.8);
-  animation: bubble-float-item 3s infinite ease-in-out alternate;
+  animation: avatarIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards, bubble-float-item 3s infinite ease-in-out alternate 0.8s;
 }
 .style-7 .alert-title {
   color: #ff69b4;
@@ -417,7 +554,7 @@ body {
   100% { transform: translateY(-5px) rotate(3deg); }
 }
 
-/* STYLE 8: Retro Scanline Glass */
+/* STYLE 8: Retro Scanline Glass (Arcade / Retro Game Vibe) */
 .style-8 {
   background: rgba(2, 2, 16, 0.55);
   backdrop-filter: blur(20px);
@@ -426,6 +563,21 @@ body {
   box-shadow: 0 0 20px rgba(0, 255, 102, 0.15);
   border-radius: 4px;
   position: relative;
+  overflow: hidden;
+}
+.style-8::before {
+  content: '';
+  position: absolute;
+  top: -100%; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(0, 255, 102, 0.2), transparent);
+  animation: style8-scan 4s infinite linear;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style8-scan {
+  0% { top: -100%; }
+  100% { top: 100%; }
 }
 .style-8::after {
   content: " ";
@@ -469,7 +621,7 @@ body {
   100% { transform: scaleY(0.01) scaleX(0.01); opacity: 0; }
 }
 
-/* STYLE 9: Prism Slash Glass */
+/* STYLE 9: Prism Slash Glass (Esports Vibe / Action Game) */
 .style-9 {
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(30px);
@@ -477,6 +629,24 @@ body {
   border: 1.5px solid rgba(255, 255, 255, 0.15);
   transform: skewX(-12deg);
   border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.style-9::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  width: 100%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: skewX(12deg);
+  animation: style9-slash 2.5s infinite ease-in-out;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes style9-slash {
+  0% { left: -150%; }
+  50% { left: 150%; }
+  100% { left: 150%; }
 }
 .style-9 .alert-avatar {
   transform: skewX(12deg);
@@ -525,6 +695,22 @@ body {
   animation: orb-bounce-anim 8s infinite alternate ease-in-out;
   z-index: -1;
   pointer-events: none;
+}
+.style-10::before {
+  content: '';
+  position: absolute;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.25) 0%, transparent 70%);
+  bottom: -60px; right: -60px;
+  filter: blur(20px);
+  animation: orb-bounce-anim2 10s infinite alternate ease-in-out;
+  z-index: -2;
+  pointer-events: none;
+}
+@keyframes orb-bounce-anim2 {
+  0% { transform: translate(0, 0) scale(1.1); }
+  50% { transform: translate(-220px, -70px) scale(0.95); }
+  100% { transform: translate(-100px, 40px) scale(1.15); }
 }
 .style-10 .alert-avatar {
   border: 2px solid rgba(255, 255, 255, 0.3);
@@ -583,4 +769,464 @@ body {
   0% { transform: scale(1) rotate(0deg); }
   50% { transform: scale(1.75) rotate(15deg); }
   100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ========================================================
+   ALL EVENTS EXCLUSIVE VARIATIVE STYLES (ae-1 to ae-5)
+   ======================================================== */
+
+/* AE Style 1: Neon Border Glass Card */
+.style-ae-1 {
+  background: rgba(10, 10, 15, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25) !important;
+  position: relative;
+}
+.style-ae-1::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.style-ae-1 .alert-avatar {
+  border: 3px solid var(--neon-cyan) !important;
+}
+.style-ae-1-enter {
+  animation: ae1-in 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+.style-ae-1-exit {
+  animation: ae1-out 0.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+@keyframes ae1-in {
+  0% { transform: translateY(40px) scale(0.95); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes ae1-out {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.95); opacity: 0; }
+}
+
+/* AE Style 2: Retro 8-Bit Pixel Block */
+.style-ae-2 {
+  background: #050505 !important;
+  border: 4px solid #fff !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.2) !important;
+}
+.style-ae-2 .alert-avatar {
+  border-radius: 0px !important;
+  border: 3px solid #fff !important;
+}
+.style-ae-2 .alert-title {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 15px !important;
+  color: #ffde17 !important;
+  text-shadow: none !important;
+}
+.style-ae-2 .alert-description {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 10px !important;
+  color: #fff !important;
+}
+.style-ae-2-enter {
+  animation: ae2-in 0.4s steps(4) forwards;
+}
+.style-ae-2-exit {
+  animation: ae2-out 0.3s steps(4) forwards;
+}
+@keyframes ae2-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes ae2-out {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* AE Style 3: Cyberpunk Glitch Panel */
+.style-ae-3 {
+  background: rgba(26, 26, 36, 0.95) !important;
+  border-left: 8px solid var(--neon-cyan) !important;
+  border-right: 8px solid var(--neon-pink) !important;
+  border-radius: 0px !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(255, 0, 85, 0.15) !important;
+  position: relative;
+}
+.style-ae-3::after {
+  content: 'SYSTEM EVENT';
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 9px;
+  color: var(--neon-cyan);
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}
+.style-ae-3 .alert-avatar {
+  border-radius: 4px !important;
+  border: 2px solid var(--neon-cyan) !important;
+}
+.style-ae-3 .alert-title {
+  font-family: 'Orbitron', sans-serif !important;
+  color: var(--neon-cyan) !important;
+  text-transform: uppercase !important;
+}
+.style-ae-3-enter {
+  animation: ae3-in 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
+.style-ae-3-exit {
+  animation: ae3-out 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
+@keyframes ae3-in {
+  0% { transform: translateX(100px) skewX(-15deg); opacity: 0; }
+  100% { transform: translateX(0) skewX(0deg); opacity: 1; }
+}
+@keyframes ae3-out {
+  0% { transform: translateX(0) skewX(0deg); opacity: 1; }
+  100% { transform: translateX(-100px) skewX(15deg); opacity: 0; }
+}
+
+/* AE Style 4: Kawaii Pastel Bubble */
+.style-ae-4 {
+  background: rgba(255, 230, 240, 0.98) !important;
+  border: 3px solid #ffb3d9 !important;
+  border-radius: 30px !important;
+  box-shadow: 0 8px 20px rgba(255, 179, 217, 0.35) !important;
+}
+.style-ae-4 .alert-avatar {
+  border: 3px solid #ffb3d9 !important;
+  border-radius: 20px !important;
+}
+.style-ae-4 .alert-title {
+  font-family: 'Outfit', sans-serif !important;
+  color: #d14785 !important;
+  text-shadow: none !important;
+}
+.style-ae-4 .alert-description {
+  color: #8c4366 !important;
+}
+.style-ae-4-enter {
+  animation: ae4-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.style-ae-4-exit {
+  animation: ae4-out 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+@keyframes ae4-in {
+  0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes ae4-out {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: scale(0.3) rotate(15deg); opacity: 0; }
+}
+
+/* AE Style 5: Luxury Gold Banner */
+.style-ae-5 {
+  background: linear-gradient(135deg, #111 0%, #222 50%, #111 100%) !important;
+  border: 2px solid var(--gold-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.25) !important;
+  position: relative;
+}
+.style-ae-5::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.15), transparent);
+  animation: ae5-shimmer 3s infinite linear;
+}
+@keyframes ae5-shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+.style-ae-5 .alert-avatar {
+  border: 2px solid var(--gold-color) !important;
+  border-radius: 50% !important;
+}
+.style-ae-5 .alert-title {
+  font-family: 'Outfit', sans-serif !important;
+  background: linear-gradient(45deg, #ffe066, #f5b041, #ffd700) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: var(--gold-color) !important;
+  text-shadow: none !important;
+}
+.style-ae-5 .alert-description {
+  color: #f5c780 !important;
+}
+.style-ae-5-enter {
+  animation: ae5-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.style-ae-5-exit {
+  animation: ae5-out 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes ae5-in {
+  0% { transform: scaleY(0); opacity: 0; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+@keyframes ae5-out {
+  0% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0); opacity: 0; }
+}
+
+/* ========================================================
+   NON-BLOCKING PARADIGMS (Style 6 - 10)
+   ======================================================== */
+
+/* AE Style 6: Vertical Carousel Ticker (3D Slot) */
+.nb-container-style-6 {
+  position: absolute;
+  top: 50%;
+  left: 50px;
+  width: 450px;
+  height: 300px;
+  transform: translateY(-50%);
+  display: block;
+  pointer-events: none;
+  perspective: 1000px;
+}
+.nb-card.style-ae-6 {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  width: 100%;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform, opacity, filter;
+}
+.nb-card.style-ae-6 .nb-avatar {
+  width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--neon-cyan); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.nb-card.style-ae-6 .nb-text {
+  color: #fff; font-size: 18px; white-space: nowrap; font-family: 'Inter', sans-serif; font-weight: 700;
+}
+.nb-card.style-ae-6 .nb-text strong {
+  color: var(--neon-cyan); margin-right: 8px; font-size: 16px; display: block;
+}
+.ae-6-dot {
+  width: 12px; height: 12px;
+  background: var(--neon-cyan);
+  border-radius: 50%;
+  margin-right: 15px;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+/* AE Style 7: Vertical Carousel Ticker (Mirrored Curve) */
+.nb-container-style-7 {
+  position: absolute;
+  top: 50%;
+  right: 50px; /* Aligned to right */
+  width: 450px;
+  height: 300px;
+  transform: translateY(-50%);
+  display: block;
+  pointer-events: none;
+  perspective: 1000px;
+}
+.nb-card.style-ae-7 {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  width: 100%;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 100px 100px 0; /* Curve on the right (reversed) */
+  padding: 10px;
+  display: flex;
+  flex-direction: row-reverse; /* Mirrored layout */
+  align-items: center;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform, opacity, filter;
+}
+.nb-card.style-ae-7 .nb-avatar {
+  width: 45px; height: 45px; border-radius: 50%; margin-left: 15px; border: 2px solid var(--neon-purple); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.nb-card.style-ae-7 .nb-text {
+  color: #fff; font-size: 18px; white-space: nowrap; font-family: 'Inter', sans-serif; font-weight: 700; text-align: right;
+}
+.nb-card.style-ae-7 .nb-text strong {
+  color: var(--neon-purple); margin-left: 8px; font-size: 16px; display: block;
+}
+.ae-7-dot {
+  width: 12px; height: 12px;
+  background: var(--neon-purple);
+  border-radius: 50%;
+  margin-left: 15px;
+  box-shadow: 0 0 10px var(--neon-purple);
+}
+
+/* AE Style 8: Horizontal Cover Flow */
+.nb-container-style-8 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1080px;
+  height: 200px;
+  display: block;
+  pointer-events: none;
+}
+.nb-card.style-ae-8 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  height: 64px;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  will-change: transform, opacity, filter;
+  margin-top: -32px;
+  margin-left: -140px;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+.nb-card.style-ae-8 .nb-avatar {
+  width: 38px; height: 38px; border-radius: 8px; margin-right: 10px; border: 2px solid var(--neon-purple); flex-shrink: 0;
+}
+.nb-card.style-ae-8 .nb-text {
+  font-size: 13px; font-weight: 500; display: flex; flex-direction: column; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+.nb-card.style-ae-8 .nb-text strong {
+  color: var(--neon-purple); font-size: 11px; font-weight: 800; text-transform: uppercase;
+}
+
+/* ========================================================
+   CUSTOM ENTRANCE ANIMATIONS & SHAKE EFFECT PER EVENT
+   ======================================================== */
+
+/* Shake Vibe animation on Gift and Gift Combo */
+.shake-vibe-active {
+  animation: shake-vibe-keyframes 0.45s ease-in-out !important;
+}
+
+@keyframes shake-vibe-keyframes {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-4px, 3px) rotate(-1.5deg); }
+  20% { transform: translate(3px, -3px) rotate(1.5deg); }
+  30% { transform: translate(-2px, 1px) rotate(-0.5deg); }
+  40% { transform: translate(4px, -2px) rotate(1.5deg); }
+  50% { transform: translate(-3px, 3px) rotate(-1deg); }
+  60% { transform: translate(2px, -1px) rotate(0.5deg); }
+  70% { transform: translate(-4px, -2px) rotate(-1.5deg); }
+  80% { transform: translate(3px, 3px) rotate(1deg); }
+  90% { transform: translate(-2px, -3px) rotate(-0.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Comment (Chat) entry wobble */
+.chat-event-card {
+  animation: chat-wobble-entry 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes chat-wobble-entry {
+  0% { transform: scale(0.8) translateY(20px) rotate(-3deg); opacity: 0; }
+  50% { transform: scale(1.05) rotate(2deg); }
+  100% { transform: scale(1) translateY(0) rotate(0); opacity: 1; }
+}
+
+/* Share flip-in rotation */
+.share-event-card {
+  animation: share-flip-entry 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+  perspective: 800px;
+}
+@keyframes share-flip-entry {
+  0% { transform: rotateY(-90deg) scale(0.8); opacity: 0; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
+/* Subscribe bouncy stars entrance with glow pulse */
+.subscribe-event-card {
+  animation: subscribe-bounce-entry 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.35) forwards, subscribe-glow-pulse 1.8s infinite ease-in-out alternate;
+}
+@keyframes subscribe-bounce-entry {
+  0% { transform: scale(0.3) translateY(30px); opacity: 0; }
+  70% { transform: scale(1.08) translateY(-5px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes subscribe-glow-pulse {
+  0% { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); }
+  100% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.45), 0 10px 40px rgba(0, 0, 0, 0.4); }
+}
+
+/* Follow event card base animation setting */
+.follow-event-card {
+  animation: elegant-slide-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ========================================================
+   ANIMATED SWEETENER ICONS (🔔, 👑, 🔗, 💬)
+   ======================================================== */
+.pemanis-icon {
+  font-size: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+/* Lonceng swing */
+.pemanis-icon.bell-icon {
+  animation: bell-swing 1.2s ease-in-out infinite alternate;
+  transform-origin: top center;
+}
+@keyframes bell-swing {
+  0% { transform: rotate(-25deg); }
+  100% { transform: rotate(25deg); }
+}
+
+/* Share spin/rotate */
+.pemanis-icon.share-icon {
+  animation: share-rotate 2.2s ease-in-out infinite;
+}
+@keyframes share-rotate {
+  0% { transform: scale(1) rotate(0deg); }
+  35% { transform: scale(1.2) rotate(20deg); }
+  55% { transform: scale(1) rotate(-20deg); }
+  75% { transform: scale(1.2) rotate(360deg); }
+  100% { transform: scale(1) rotate(360deg); }
+}
+
+/* Subscribe crown bounce */
+.pemanis-icon.crown-icon {
+  animation: crown-bounce-anim 1.1s ease-in-out infinite alternate;
+}
+@keyframes crown-bounce-anim {
+  0% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4)); }
+  100% { transform: translateY(-7px) scale(1.18); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.85)); }
+}
+
+/* Chat bubble pulse */
+.pemanis-icon.chat-icon {
+  animation: chat-pulse-anim 1.5s ease-in-out infinite alternate;
+}
+@keyframes chat-pulse-anim {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+  100% { transform: scale(1.18) rotate(5deg); opacity: 1; }
 }
